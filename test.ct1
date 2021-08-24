@@ -1,0 +1,8 @@
+include(std.ct1);
+
+a = 1;
+a += 1;
+a @> a;
+exit(
+    if0(a == 2, :3, :4)
+);

@@ -1,0 +1,189 @@
+'start
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # you can test number from 0 to 16
+# Default pointers
+'#0:16
+'#1:1
+'#2:2
+'#3:3
+'#4:4
+'#5:5
+'#6:6
+'#7:7
+'#8:8
+'#9:9
+'#A:10
+'#B:11
+'#C:12
+'#D:13
+'#E:14
+'#F:15
+'#null:0
+
+# delimiter for compiled version (to see the result better)
+7070
+# return value from functions
+
+'#return_0:0
+'#return_1:0
+'#return_2:0
+'#return_3:0
+'#return_4:0
+'#return_5:0
+'#return_6:0
+'#return_7:0
+'#return_8:0
+'#return_9:0
+'#return_A:0
+'#return_B:0
+'#return_C:0
+'#return_D:0
+'#return_E:0
+'#return_F:0
+
+7070
+
+
+no_op = (1 1)
+earasable = (999)
+
+stop = (~+2 0 ~-2) # Stop the program
+
+# jump to self.0
+jump {~+2 0 self.0}
+
+# self.0 = 'code 
+exit {
+    self.0 '#return_0 stop
+}
+
+# self.0 : '[0-F]
+# increment value at self.0
+inc {
+    self.0 'test
+    '#F 14
+    '#E 13
+    '#D 12
+    '#C 11
+    '#B 10
+    '#A 9
+    '#9 8
+    '#8 7
+    '#7 6
+    '#6 5
+    '#5 4
+    '#4 3
+    '#3 2
+    '#2 1
+    '#1 16
+    '#0 15
+    'test:earasable self.0
+}
+
+# self.0 : '[0-F]
+# decrement value at self.0
+dec {
+    self.0 'test
+    '#F 16
+    '#E 15
+    '#D 14
+    '#C 13
+    '#B 12
+    '#A 11
+    '#9 10
+    '#8 9
+    '#7 8
+    '#6 7
+    '#5 6
+    '#4 5
+    '#3 4
+    '#2 3
+    '#1 2
+    '#0 1
+    'test:earasable self.0
+}
+
+# self.0 : '[0-F]
+# jump to self.1 if self.0 is 0 
+if_0 {
+    self.0 'test
+    'pt 16
+    'end 15
+    'end 14
+    'end 13
+    'end 12
+    'end 11
+    'end 10
+    'end 9
+    'end 8
+    'end 7
+    'end 6
+    'end 5
+    'end 4
+    'end 3
+    'end 2
+    'end 1
+    'test:earasable 0
+    jump('end1)
+    'pt:self.1
+    'end:~+1
+    'end1:no_op
+}
+
+'v_1:0
+'v_4:0
+'v_5:0
+'v_7:0
+'v_8:0
+'v_20:0
+'v_21:0
+'v_23:0
+'v_24:0
+'v_18:0
+
+
+
+7070
+
+'start:no_op
+
+'#1 'v_1
+'v_1 'v_4
+'#1 'v_5
+'v_4 'v_7
+'v_5 'v_8
+'l_10:no_op
+if_0('v_8 'l_13)
+jump('l_14)
+'l_13:no_op
+jump('l_11)
+'l_14:no_op
+dec('v_8)
+inc('v_7)
+jump('l_10)
+'l_11:no_op
+'v_7 'v_1
+'v_1 '#return_8
+'v_1 'v_20
+'#2 'v_21
+'v_20 'v_23
+'v_21 'v_24
+'l_26:no_op
+if_0('v_24 'l_29)
+jump('l_30)
+'l_29:no_op
+jump('l_27)
+'l_30:no_op
+dec('v_24)
+dec('v_23)
+jump('l_26)
+'l_27:no_op
+if_0('v_23 'l_18)
+'#4 'v_18
+jump('l_19)
+'l_18:no_op
+'l_19:no_op
+'#3 'v_18
+'v_18 '#return_0
+stop
+
+exit('#0)

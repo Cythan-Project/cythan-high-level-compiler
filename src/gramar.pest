@@ -1,0 +1,19 @@
+WHITESPACE = _{" " | "\t" | "\n" | "\r"}
+
+char = _{ 'A'..'Z' | 'a'..'z' | '0'..'9' | "." | "_" | "/" | "$" 
+| "-" | "!" | "+" | "*" | "#" | "$" | "=" | "[" | "]"
+| "@" | "?" | "*" | "%" | "\\" | "^" | "<" | ">" | "~" | "&"}
+literal = @{char+}
+number = {ASCII_DIGIT+}
+
+function_call = {literal~"("~(expression~(","~expression)*)?~")"}
+
+code_block = {("{"~(expression ~ ";"?)*~"}")  | (":" ~ expression)}
+
+expression_sub = _{function_call | number | literal | code_block}
+opera2 = {expression_sub ~ literal ~ expression}
+opera1 = {literal ~ expression}
+simple = {expression_sub}
+expression = {opera2 | opera1 | simple}
+
+file = {SOI ~ (expression ~ ";"?)* ~ EOI}

@@ -1,0 +1,34 @@
+fn(add, a, b, {
+    loop({
+        if0(b, :break());
+        dec(b);
+        inc(a);
+    });
+    a;
+});
+fn(sub, a, b, {
+    loop({
+        if0(b, :break());
+        dec(b);
+        dec(a);
+    });
+    a;
+});
+
+fn(==, a, b, :sub(a,b));
+fn(!=, a, b, {
+    a = sub(a,b);
+    dec(a);
+    a
+});
+
+fn(+, a, b, :add(a,b));
+
+fn(++_unique, &a, :inc(a));
+fn(=, &*a,&b, :set(a,b));
+fn(@_unique, &a, {
+    get_reg(n,a)
+    n
+});
+fn(@>, &a, &b, :set_reg(b,a));
+fn(+=, &a,&b, :a = a + b);
