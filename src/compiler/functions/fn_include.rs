@@ -1,5 +1,5 @@
 use crate::compiler::{
-    error::{CError},
+    error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
     state::State,

@@ -19,7 +19,7 @@ use compiler::{
 };
 use cythan::Cythan;
 use executable::{encode, CythanCode};
-use template::Template;
+use template::{Template, get_int_pos_from_base};
 
 use crate::compiler::asm;
 
@@ -38,16 +38,16 @@ fn main() {
     let mut state = State::default();
     let mut scope = ScopedState::new();
 
-    if let Err(e) = execute_file("test.ct1", &mut state, &mut scope, None) {
+    if let Err(e) = execute_file("test1.ct1", &mut state, &mut scope, None) {
         println!("{}", e.as_pest_error());
         panic!()
     }
 
     match format {
         ExportFormat::Run => {
-            match cythan_compiler::compile(&compile(&state.instructions)) {
+            match cythan_compiler::compile(&compile(&state.instructions, state.base)) {
                 Ok(e) => {
-                    let mut machine = cythan::BasicCythan::new(e);
+                    let mut machine = cythan::InterruptedCythan::new(e,state.base, get_int_pos_from_base(state.base));
 
                     loop {
                         for _ in 0..1000 {
@@ -84,10 +84,10 @@ fn main() {
             .unwrap();
         }
         ExportFormat::CythanV3 => {
-            std::fs::write(out, compile(&state.instructions)).unwrap();
+            std::fs::write(out, compile(&state.instructions, state.base)).unwrap();
         }
         ExportFormat::Cythan => {
-            match cythan_compiler::compile(&compile(&state.instructions)) {
+            match cythan_compiler::compile(&compile(&state.instructions, state.base)) {
                 Ok(e) => {
                     std::fs::write(
                         out,
@@ -107,7 +107,7 @@ fn main() {
             }
         }
         ExportFormat::Binary => {
-            match cythan_compiler::compile(&compile(&state.instructions)) {
+            match cythan_compiler::compile(&compile(&state.instructions, state.base)) {
                 Ok(e) => {
                     std::fs::write(
                         out,
@@ -132,8 +132,8 @@ fn main() {
     // ...
 }
 
-fn compile(instructions: &[CompilableInstruction]) -> String {
-    let mut template = Template::new(include_str!("../template.ct"));
+fn compile(instructions: &[CompilableInstruction], base: u8) -> String {
+    let mut template = Template::new(include_str!("../template.ct"), base);
     let mut ctx = asm::Context::default();
     instructions
         .iter()

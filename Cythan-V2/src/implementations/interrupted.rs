@@ -2,32 +2,34 @@ use std::io::Read;
 
 /// This Cythan implementation is optimized to take advantage of a fixed step of 2 and a base value of 0 to get very good performances!
 /// This implementation is the fastest on small codes but on larger codes the chunked implemenetation is faster
-///
+/// 
 /// ```rust
-/// use cythan::{Cythan,BasicCythan};
+/// use cythan::{Cythan,InterruptedCythan};
 /// // This function create a Cythan Machine with a step of 2 and a base value of 0
-/// let machine = BasicCythan::new(vec![12,23,45,20,0]);
+/// let machine = InterruptedCythan::new(vec![12,23,45,20,0]);
 /// ```
-pub struct BasicCythan {
+pub struct InterruptedCythan {
     pub cases: Vec<usize>,
+    pub base_as_pow:usize,
+    pub interrupt_place:usize
 }
 
-impl std::fmt::Display for BasicCythan {
+impl std::fmt::Display for InterruptedCythan {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Cythan{:?}", self.cases)
     }
 }
 
-impl BasicCythan {
+impl InterruptedCythan {
     /// Create a chunked Cythan Machine with a step of 2 and a base value of 0
-    pub fn new(cases: Vec<usize>) -> Self {
-        Self { cases }
+    pub fn new(cases: Vec<usize>,base:u8,interrupt_place:usize) -> Self {
+        Self { cases, base_as_pow:2_u64.pow(base as u32) as usize, interrupt_place}
     }
 }
 
 use crate::cythan::Cythan;
 
-impl Cythan for BasicCythan {
+impl Cythan for InterruptedCythan {
     #[inline]
     fn next(&mut self) {
         unsafe {
@@ -61,6 +63,23 @@ impl Cythan for BasicCythan {
 
     #[inline]
     fn set_value(&mut self, index: usize, value: usize) {
+        if index == self.interrupt_place {
+            if value == 1 {
+                let a = self.get_value(self.interrupt_place +1);
+                let b = self.get_value(self.interrupt_place +2);
+                let char = ((a % self.base_as_pow) * self.base_as_pow) + (b % self.base_as_pow);
+                print!("{}", char as u8 as char);
+            }
+            if value == 2 {
+                // println!("INPUT");
+                let o: u8 = std::io::stdin().bytes().next().unwrap().unwrap();
+                let a = o % self.base_as_pow as u8;
+                let b = o / self.base_as_pow as u8;
+                // println!("vals:{} {}",a,b);
+                self.set_value(self.interrupt_place +1, b as usize);
+                self.set_value(self.interrupt_place +2, a as usize);
+            }
+        }
         if self.cases.len() <= index {
             if value != 0 {
                 self.cases.extend((self.cases.len()..index).map(|_| 0));
@@ -76,7 +95,7 @@ impl Cythan for BasicCythan {
 
 #[test]
 fn basic_test_if() {
-    let mut cythan = BasicCythan::new(vec![1, 9, 5, 10, 1, 0, 0, 11, 0, 1, 20, 21]);
+    let mut cythan = InterruptedCythan::new(vec![1, 9, 5, 10, 1, 0, 0, 11, 0, 1, 20, 21]);
     for a in 0..10 {
         cythan.next();
     }
@@ -84,7 +103,7 @@ fn basic_test_if() {
 }
 #[test]
 fn basic_test_simple() {
-    let mut cythan = BasicCythan::new(vec![1, 5, 3, 0, 0, 999]);
+    let mut cythan = InterruptedCythan::new(vec![1, 5, 3, 0, 0, 999]);
     cythan.next();
     assert_eq!(cythan.cases, vec![3, 5, 3, 999, 0, 999]);
 }

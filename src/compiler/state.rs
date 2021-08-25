@@ -1,9 +1,19 @@
 use super::asm::CompilableInstruction;
 
-#[derive(Default)]
 pub struct State {
     counter: usize,
+    pub base: u8,
     pub instructions: Vec<CompilableInstruction>,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        State {
+            counter: 0,
+            base: 4,
+            instructions: Vec::new(),
+        }
+    }
 }
 
 impl State {

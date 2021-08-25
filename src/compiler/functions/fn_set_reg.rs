@@ -1,7 +1,7 @@
 use crate::compiler::{
     asm::{CompilableInstruction, Number},
-    error::{CError},
-    parser::{function_call::FunctionCall},
+    error::CError,
+    parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
     type_defs::Result,

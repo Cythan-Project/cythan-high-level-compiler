@@ -1,6 +1,6 @@
 use crate::compiler::{
     asm::{CompilableInstruction, Var},
-    error::{CError},
+    error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
     state::State,

@@ -62,15 +62,15 @@ impl CompilableInstruction {
             }
             CompilableInstruction::Stop => template.add_code(Cow::Borrowed("stop")),
             CompilableInstruction::ReadRegister(a, b) => {
-                template.add_code(Cow::Owned(format!("'#return_{} {}", b.0, a)));
+                template.add_code(Cow::Owned(format!("'#int_{} {}", b.0, a)));
             }
             CompilableInstruction::WriteRegister(a, b) => match b {
                 Either::Left(b) => {
                     Self::check_compile_var(b, template, ctx);
-                    template.add_code(Cow::Owned(format!("{} '#return_{}", b, a.0)));
+                    template.add_code(Cow::Owned(format!("{} '#int_{}", b, a.0)));
                 }
                 Either::Right(b) => {
-                    template.add_code(Cow::Owned(format!("'#{} '#return_{}", b.0, a.0)));
+                    template.add_code(Cow::Owned(format!("'#{} '#int_{}", b.0, a.0)));
                 }
             },
         }

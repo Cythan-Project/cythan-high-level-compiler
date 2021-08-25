@@ -1,0 +1,43 @@
+include(std.ct1);
+
+fn(print,a,b,{
+    a @> 1;
+    b @> 2;
+    1 @> 0;
+});
+
+(( We define ))
+{
+    print(5,11); (( char "[" ))
+
+    add3(3,0,res2,res1); 
+    print(3,res2);
+    print(3,res1);
+
+    print(2,12); (( char "," ))
+    
+    add3(3,3,! res2,res1); 
+    print(3,res2);
+    print(3,res1);
+
+    print(2,12); (( char "," ))
+    
+    add3(10,15,! res2,res1); 
+    print(3,res2);
+    print(3,res1);
+
+    print(2,12); (( char "," ))
+
+    mul(10, 8, ! res1, ! res2);
+
+    print(3,res2);
+    print(3,res1);
+
+    print(2,12); (( char "," ))
+    print(3,4 * 2);
+
+    
+    print(5,13); (( char "]" ))
+
+
+};
