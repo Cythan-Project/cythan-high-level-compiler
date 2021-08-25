@@ -64,6 +64,7 @@ impl ChunkedCythan {
         }
     }
 
+    #[allow(unused)]
     fn as_vec(&self) -> Vec<usize> {
         let mut linear = Vec::new();
         let mut unused = false;
