@@ -24,9 +24,9 @@ impl BitInformation for u8 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self & (0b00000001 << position)) != 0;
+            (self & (0b00000001 << position)) != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -39,9 +39,9 @@ impl BitInformation for i8 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self & (0b00000001 << position)) != 0;
+            (self & (0b00000001 << position)) != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -54,9 +54,9 @@ impl BitInformation for u16 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self & (0b0000000000000001 << position)) != 0;
+            (self & (0b0000000000000001 << position)) != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -69,9 +69,9 @@ impl BitInformation for i16 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self & (0b0000000000000001 << position)) != 0;
+            (self & (0b0000000000000001 << position)) != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -84,9 +84,9 @@ impl BitInformation for u32 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self & (0b00000000000000000000000000000001 << position)) != 0;
+            (self & (0b00000000000000000000000000000001 << position)) != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -99,9 +99,9 @@ impl BitInformation for i32 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self & (0b00000000000000000000000000000001 << position)) != 0;
+            (self & (0b00000000000000000000000000000001 << position)) != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -114,12 +114,11 @@ impl BitInformation for u64 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self
-                & (0b0000000000000000000000000000000000000000000000000000000000000001
-                    << position))
-                != 0;
+            (self
+                & (0b0000000000000000000000000000000000000000000000000000000000000001 << position))
+                != 0
         } else {
-            return false; //Huh
+            false
         }
     }
 }
@@ -132,48 +131,11 @@ impl BitInformation for i64 {
 
     fn has_x_bit(&self, position: usize) -> bool {
         if self.is_bit_in_bounds(position) {
-            return (self
-                & (0b0000000000000000000000000000000000000000000000000000000000000001
-                    << position))
-                != 0;
+            (self
+                & (0b0000000000000000000000000000000000000000000000000000000000000001 << position))
+                != 0
         } else {
-            return false; //Huh
-        }
-    }
-}
-
-impl BitInformation for usize {
-    /// Gets the number of bits contained in this type
-    fn number_of_bits(&self) -> usize {
-        (self.count_ones() + self.count_zeros()) as usize
-    }
-
-    fn has_x_bit(&self, position: usize) -> bool {
-        if self.is_bit_in_bounds(position) {
-            return (self
-                & (0b0000000000000000000000000000000000000000000000000000000000000001
-                    << position))
-                != 0;
-        } else {
-            return false; //Huh
-        }
-    }
-}
-
-impl BitInformation for isize {
-    /// Gets the number of bits contained in this type
-    fn number_of_bits(&self) -> usize {
-        (self.count_ones() + self.count_zeros()) as usize
-    }
-
-    fn has_x_bit(&self, position: usize) -> bool {
-        if self.is_bit_in_bounds(position) {
-            return (self
-                & (0b0000000000000000000000000000000000000000000000000000000000000001
-                    << position))
-                != 0;
-        } else {
-            return false; //Huh
+            false
         }
     }
 }

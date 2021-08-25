@@ -9,7 +9,7 @@
 
 use core::fmt;
 use core::hash::{Hash, Hasher};
-use core::ptr;
+
 use core::str;
 
 use alloc::borrow::ToOwned;

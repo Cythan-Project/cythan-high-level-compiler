@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 
 pub mod fn_break;
 pub mod fn_continue;
@@ -16,7 +17,7 @@ pub mod fn_set_reg;
 use crate::compiler::{
     asm::{CompilableInstruction, Var},
     error::{CError, CSpan},
-    parser::{expression::Expression},
+    parser::expression::Expression,
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -88,7 +89,7 @@ pub fn as_number(expr: &Expression, ss: &ScopedState) -> Result<u8> {
     }
 }
 
-pub fn SET1(
+pub fn set_variable_to_expression(
     state: &mut State,
     ss: &mut ScopedState,
     ss1: &mut ScopedState,
@@ -97,7 +98,7 @@ pub fn SET1(
     span: CSpan,
 ) -> Result<()> {
     let k1: Var = ss.declare_variable(var, span, state).into(); // Changed to replace var
-    let k2 = get_value(&fc, state, ss1)?;
+    let k2 = get_value(fc, state, ss1)?;
     state
         .instructions
         .push(CompilableInstruction::Copy(k1, k2.to_asm()));

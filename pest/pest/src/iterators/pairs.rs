@@ -13,7 +13,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use core::fmt;
 use core::hash::{Hash, Hasher};
-use core::ptr;
+
 use core::str;
 
 #[cfg(feature = "pretty-print")]

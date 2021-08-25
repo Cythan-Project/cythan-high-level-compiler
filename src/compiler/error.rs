@@ -62,7 +62,6 @@ impl CError {
             | CError::FunctionNotFound(a, _)
             | CError::WrongNumberOfArgument(a, _)
             | CError::ExpectedVariable(a)
-            | CError::ExpectedVariable(a)
             | CError::InvalidNumber(a)
             | CError::FileNotFound(a, _)
             | CError::ExpectedLiteral(a)

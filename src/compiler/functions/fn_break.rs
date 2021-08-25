@@ -8,7 +8,7 @@ pub fn BREAK(
     ss: &mut ScopedState,
     fc: &FunctionCall,
 ) -> Result<Option<CVariable>> {
-    if fc.arguments.len() != 0 {
+    if !fc.arguments.is_empty() {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 0));
     }
 

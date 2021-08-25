@@ -7,9 +7,13 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::{execute_code_block, get_value, get_value_and_initialize, SET1};
+use super::{execute_code_block, get_value, get_value_and_initialize, set_variable_to_expression};
 
-pub fn FN(_state: &mut State, ss: &mut ScopedState, fc: &FunctionCall) -> Result<Option<CVariable>> {
+pub fn FN(
+    _state: &mut State,
+    ss: &mut ScopedState,
+    fc: &FunctionCall,
+) -> Result<Option<CVariable>> {
     let g = fc.arguments.len();
     if fc.arguments.len() < 2 {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 2));
@@ -42,8 +46,8 @@ pub fn FN(_state: &mut State, ss: &mut ScopedState, fc: &FunctionCall) -> Result
         let mut scos = scos.clone();
         let mut vargs = c.arguments.iter();
         for (i, cspan) in &args {
-            if i.starts_with("&") {
-                match if i.starts_with("&*") {
+            if let Some(i) = i.strip_prefix('&') {
+                match if i.starts_with('*') {
                     let k = vargs
                         .next()
                         .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?;
@@ -55,24 +59,24 @@ pub fn FN(_state: &mut State, ss: &mut ScopedState, fc: &FunctionCall) -> Result
                     get_value(k, a, b)?.chain(k.get_span().clone())
                 } {
                     CVariable::Value(s, a) => scos.link_variable(
-                        if i.starts_with("&*") {
-                            &i[2..]
+                        if let Some(e) = i.strip_prefix('*') {
+                            e
                         } else {
-                            &i[1..]
+                            i
                         },
                         CVariable::Value(s, a).chain(cspan.clone()),
                     ),
                     CVariable::Number(s, ad) => scos.link_variable(
-                        if i.starts_with("&*") {
-                            &i[2..]
+                        if let Some(e) = i.strip_prefix('*') {
+                            e
                         } else {
-                            &i[1..]
+                            i
                         },
                         CVariable::Number(s, ad).chain(cspan.clone()),
                     ),
                 }
             } else {
-                SET1(
+                set_variable_to_expression(
                     a,
                     &mut scos,
                     b,

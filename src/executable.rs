@@ -1,12 +1,10 @@
-use std::io::{Write};
-
 use crate::bit_utils::BitInformation;
 
 #[derive(PartialEq, Debug)]
 pub struct CythanCode {
     pub code: Vec<usize>,
     pub base: u8,
-    pub start_pos: usize
+    pub start_pos: usize,
 }
 
 #[test]
@@ -14,25 +12,35 @@ fn test() {
     let cyco = CythanCode {
         code: (0..1024).map(|x| x * 4).collect(),
         base: 4,
-        start_pos: 35
+        start_pos: 35,
     };
     let cyco1 = decode(&encode(&cyco)).unwrap();
     assert_eq!(cyco, cyco1);
-    println!("{}",encode(&cyco).len());
+    println!("{}", encode(&cyco).len());
 }
 
 pub fn encode(cc: &CythanCode) -> Vec<u8> {
-    let mut vec = vec![0xC1,0x4B,0xA4,0x01];
+    let mut vec = vec![0xC1, 0x4B, 0xA4, 0x01];
     vec.push(cc.base);
-    UnsignedVarInt(cc.start_pos as u32).encode(&mut vec).unwrap();
+    UnsignedVarInt(cc.start_pos as u32)
+        .encode(&mut vec)
+        .unwrap();
     for i in &cc.code {
         UnsignedVarInt(*i as u32).encode(&mut vec).unwrap();
     }
     vec
 }
+
+// Will be used when adding execution of binary files
+#[allow(unused)]
 pub fn decode(data: &[u8]) -> Option<CythanCode> {
     let mut dec = data.iter();
-    if vec![0xC1,0x4B,0xA4,0x01] != (0..4).flat_map(|_|Iterator::next(&mut dec)).copied().collect::<Vec<u8>>() {
+    if vec![0xC1, 0x4B, 0xA4, 0x01]
+        != (0..4)
+            .flat_map(|_| Iterator::next(&mut dec))
+            .copied()
+            .collect::<Vec<u8>>()
+    {
         return None;
     }
     let base = *Iterator::next(&mut dec)?;
@@ -48,13 +56,14 @@ pub fn decode(data: &[u8]) -> Option<CythanCode> {
         base,
         start_pos: start_pos as usize,
     })
-
 }
 
 #[derive(Debug)]
 pub struct UnsignedVarInt(pub u32);
 
 impl UnsignedVarInt {
+    // Will be used when adding execution of binary files
+    #[allow(unused)]
     fn decode(reader: &mut impl Reader) -> Result<Option<Self>, std::io::Error> {
         let mut shift_amount: u32 = 0;
         let mut decoded_value: u32 = 0;
@@ -80,7 +89,7 @@ impl UnsignedVarInt {
         } else {
             while value >= 0b10000000 {
                 writer.write(((value & 0b01111111) as u8) | 0b10000000)?;
-                value = value >> 7;
+                value >>= 7;
             }
             writer.write((value & 0b01111111) as u8)?;
         }
@@ -99,8 +108,7 @@ pub trait Writer {
 
 impl<'a, T: Iterator<Item = &'a u8>> Reader for T {
     fn next(&mut self) -> Option<u8> {
-        self.next()
-            .copied()
+        self.next().copied()
     }
 }
 

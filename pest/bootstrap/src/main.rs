@@ -15,7 +15,7 @@ fn main() {
         "/../meta/src/grammar.rs"
     ));
 
-    let derived = {
+    let _derived = {
         let path = pest.to_string_lossy();
         let pest = quote! {
             #[grammar = #path]

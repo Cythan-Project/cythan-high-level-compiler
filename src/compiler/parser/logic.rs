@@ -57,7 +57,7 @@ impl Parse for Expression {
                 Ok(Self::FunctionCall(
                     CSpan::new(file.clone(), span.clone()),
                     FunctionCall {
-                        name: format!("{}", operator),
+                        name: operator.to_string(),
                         arguments: vec![expr, expr1],
                         span: CSpan::new(file.clone(), span),
                     },

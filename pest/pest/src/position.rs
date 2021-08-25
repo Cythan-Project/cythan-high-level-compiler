@@ -11,10 +11,10 @@ use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::ops::Range;
-use core::ptr;
+
 use core::str;
 
-use alloc::borrow::ToOwned;
+
 use alloc::rc::Rc;
 use alloc::string::String;
 use span;

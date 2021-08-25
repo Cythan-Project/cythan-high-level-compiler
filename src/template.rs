@@ -10,13 +10,10 @@ impl<'a> Template<'a> {
         let mut pieces = Vec::new();
         let mut current_template = Vec::new();
         for i in string.lines() {
-            if i.starts_with("# header ") {
+            if let Some(e) = i.strip_prefix("# header ") {
                 pieces.push(TemplatePiece::Section(current_template));
                 current_template = vec![];
-                pieces.push(TemplatePiece::NamedSection(
-                    Cow::Borrowed(&i["# header ".len()..]),
-                    vec![],
-                ));
+                pieces.push(TemplatePiece::NamedSection(Cow::Borrowed(e), vec![]));
             } else {
                 current_template.push(Cow::Borrowed(i));
             }
@@ -47,7 +44,7 @@ impl<'a> Template<'a> {
                 }
             }
         }
-        return None;
+        None
     }
 
     pub fn set_code_section(&mut self, section: Cow<'a, str>) {
