@@ -19,7 +19,7 @@ use compiler::{
 };
 use cythan::Cythan;
 use executable::{encode, CythanCode};
-use template::{Template, get_int_pos_from_base};
+use template::{get_int_pos_from_base, Template};
 
 use crate::compiler::asm;
 
@@ -47,7 +47,11 @@ fn main() {
         ExportFormat::Run => {
             match cythan_compiler::compile(&compile(&state.instructions, state.base)) {
                 Ok(e) => {
-                    let mut machine = cythan::InterruptedCythan::new(e,state.base, get_int_pos_from_base(state.base));
+                    let mut machine = cythan::InterruptedCythan::new(
+                        e,
+                        state.base,
+                        get_int_pos_from_base(state.base),
+                    );
 
                     loop {
                         for _ in 0..1000 {

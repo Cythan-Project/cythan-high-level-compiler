@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
-pub fn get_int_pos_from_base(base:u8) -> usize { // retourne la position des interupts selon la base de la machine de Cythan
-    return 2* 2_usize.pow(base as u32) +2
+pub fn get_int_pos_from_base(base: u8) -> usize {
+    // retourne la position des interupts selon la base de la machine de Cythan
+    return 2 * 2_usize.pow(base as u32) + 2;
 }
-
 
 pub struct Template<'a> {
     pub pieces: Vec<TemplatePiece<'a>>,
@@ -29,7 +29,7 @@ impl<'a> Template<'a> {
 
         let mut this = Self {
             pieces,
-            current_code_section: Cow::Borrowed("CODE")
+            current_code_section: Cow::Borrowed("CODE"),
         };
 
         let mut to_add = format!(
@@ -41,15 +41,17 @@ impl<'a> Template<'a> {
 
         to_add = format!(
             "'#0:{nb_ele}{} '#null:0",
-            (1..number_of_eles)
-                .fold(String::new(), |b: String, i| format!("{} '#{}:{}", b, i, i)),nb_ele=number_of_eles
+            (1..number_of_eles).fold(String::new(), |b: String, i| format!("{} '#{}:{}", b, i, i)),
+            nb_ele = number_of_eles
         );
         // println!("adding:{}", to_add);
         this.add_section("START", Cow::Owned(to_add));
 
         to_add = format!(
             "{}",
-            (0..number_of_eles).fold(String::new(), |b, i| format!("{} '#int_{}:0",b,i)).trim_start()
+            (0..number_of_eles)
+                .fold(String::new(), |b, i| format!("{} '#int_{}:0", b, i))
+                .trim_start()
         );
         // println!("adding:{}", to_add);
         this.add_section("INTERRUPTS", Cow::Owned(to_add));
@@ -57,9 +59,12 @@ impl<'a> Template<'a> {
         this.add_section("V3_VAR_DEF", Cow::Owned("no_op = (1 1)".to_string()));
         this.add_section("V3_VAR_DEF", Cow::Owned("earasable = (999)".to_string()));
         this.add_section("V3_VAR_DEF", Cow::Owned("stop = (~+2 0 ~-2)".to_string()));
-        
+
         this.add_section("V3_FCT_DEF", Cow::Owned("jump {~+2 0 self.0}".to_string()));
-        this.add_section("V3_FCT_DEF", Cow::Owned("exit {self.0 '#int_0 stop}".to_string()));
+        this.add_section(
+            "V3_FCT_DEF",
+            Cow::Owned("exit {self.0 '#int_0 stop}".to_string()),
+        );
 
         this.add_section("V3_FCT_DEF", Cow::Owned("inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }".to_string()));
         this.add_section("V3_FCT_DEF", Cow::Owned("dec { self.0 'test '#15 16 '#14 15 '#13 14 '#12 13 '#11 12 '#10 11 '#9 10 '#8 9 '#7 8 '#6 7 '#5 6 '#4 5 '#3 4 '#2 3 '#1 2 '#0 1 'test:earasable self.0 }".to_string()));
@@ -124,7 +129,8 @@ impl<'a> Template<'a> {
         }
     }
 
-    pub fn build(&self) -> String { // retourne aussi la case ou ce situe les interrupts
+    pub fn build(&self) -> String {
+        // retourne aussi la case ou ce situe les interrupts
         self.pieces
             .iter()
             .map(|x| match x {
