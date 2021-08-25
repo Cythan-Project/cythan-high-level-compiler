@@ -1,5 +1,4 @@
 use crate::compiler::{
-    asm::CompilableInstruction,
     error::{CError, CSpan},
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -10,12 +9,12 @@ use crate::compiler::{
 
 use super::{execute_code_block, get_value, get_value_and_initialize, SET1};
 
-pub fn FN(state: &mut State, ss: &mut ScopedState, fc: &FunctionCall) -> Result<Option<CVariable>> {
+pub fn FN(_state: &mut State, ss: &mut ScopedState, fc: &FunctionCall) -> Result<Option<CVariable>> {
     let g = fc.arguments.len();
     if fc.arguments.len() < 2 {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 2));
     }
-    let fname = if let Expression::Literal(s, n) = &fc.arguments[0] {
+    let fname = if let Expression::Literal(_s, n) = &fc.arguments[0] {
         n
     } else {
         return Err(CError::ExpectedLiteral(fc.arguments[0].get_span().clone()));
@@ -30,7 +29,7 @@ pub fn FN(state: &mut State, ss: &mut ScopedState, fc: &FunctionCall) -> Result<
             a => Err(CError::ExpectedLiteral(a.get_span().clone())),
         })
         .collect::<Result<_>>()?;
-    let code = if let Expression::CodeBlock(s, n) = &fc.arguments[g - 1] {
+    let code = if let Expression::CodeBlock(_s, n) = &fc.arguments[g - 1] {
         n.clone()
     } else {
         return Err(CError::ExpectedBlock(

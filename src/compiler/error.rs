@@ -87,7 +87,7 @@ impl CError {
                 }
                 k
             }
-            e => build_error(&self.to_string(), &self.get_spans()),
+            _e => build_error(&self.to_string(), &self.get_spans()),
         }
     }
 }

@@ -170,10 +170,10 @@ pub fn execute_file(
 fn exe(expressions: &[Expression], state: &mut State, scope: &mut ScopedState) -> Result<()> {
     for e in expressions {
         match e {
-            Expression::FunctionCall(s, a) => {
+            Expression::FunctionCall(_s, a) => {
                 scope.execute(a, state)?;
             }
-            Expression::CodeBlock(s, a) => {
+            Expression::CodeBlock(_s, a) => {
                 exe(a, state, scope)?;
             }
             _ => (),

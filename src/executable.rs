@@ -1,4 +1,4 @@
-use std::io::{Read, Write};
+use std::io::{Write};
 
 use crate::bit_utils::BitInformation;
 

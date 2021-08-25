@@ -1,6 +1,6 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Number, Var},
-    error::{CError, CSpan},
+    asm::{CompilableInstruction},
+    error::{CError},
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
     state::State,
@@ -17,7 +17,7 @@ pub fn LOOP(
     if fc.arguments.len() != 1 {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 1));
     }
-    let inside = if let Some(Expression::CodeBlock(s, e)) = fc.arguments.get(0) {
+    let inside = if let Some(Expression::CodeBlock(_s, e)) = fc.arguments.get(0) {
         e
     } else {
         return Err(CError::ExpectedBlock(fc.arguments[0].get_span().clone()));

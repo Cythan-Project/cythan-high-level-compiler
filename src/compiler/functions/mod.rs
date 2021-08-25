@@ -1,4 +1,4 @@
-use either::Either;
+
 pub mod fn_break;
 pub mod fn_continue;
 pub mod fn_dec;
@@ -14,9 +14,9 @@ pub mod fn_set;
 pub mod fn_set_reg;
 
 use crate::compiler::{
-    asm::{CompilableInstruction, Number, Var},
+    asm::{CompilableInstruction, Var},
     error::{CError, CSpan},
-    parser::{expression::Expression, function_call::FunctionCall},
+    parser::{expression::Expression},
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -75,10 +75,10 @@ pub fn get_var(expr: &Expression, state: &mut State, ss: &mut ScopedState) -> Re
 
 pub fn as_number(expr: &Expression, ss: &ScopedState) -> Result<u8> {
     match expr {
-        Expression::Number(s, a) => Ok(*a),
+        Expression::Number(_s, a) => Ok(*a),
         Expression::Literal(s, a) => match ss.get_variable(s, a)? {
             CVariable::Number(_, a) => Ok(*a),
-            CVariable::Value(s1, a) => {
+            CVariable::Value(s1, _a) => {
                 let mut trace = s1.clone();
                 trace.insert(0, s.clone());
                 Err(CError::ExpectedNumberReferenceFoundVariable(trace))
@@ -114,10 +114,10 @@ pub fn execute_code_block(
     let mut k = None;
     for m in expr {
         match m {
-            Expression::FunctionCall(s, m) => {
+            Expression::FunctionCall(_s, m) => {
                 k = ss.execute(m, state)?;
             }
-            Expression::CodeBlock(s, m) => {
+            Expression::CodeBlock(_s, m) => {
                 k = execute_code_block(m, state, ss.clone())?;
             }
             Expression::Literal(s, m) => k = Some(ss.get_variable(s, m)?.clone()),

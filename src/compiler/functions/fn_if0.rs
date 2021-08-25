@@ -1,6 +1,6 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Number, Var},
-    error::{CError, CSpan},
+    asm::{CompilableInstruction},
+    error::{CError},
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
     state::State,
@@ -23,7 +23,7 @@ pub fn IF0(
             .instructions
             .push(CompilableInstruction::If0(k1, count.into()));
         let a = execute_code_block(
-            &if let Expression::CodeBlock(s, e) = &fc.arguments[2] {
+            &if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
                 e
             } else {
                 return Err(CError::ExpectedBlock(fc.arguments[2].get_span().clone()));
@@ -45,7 +45,7 @@ pub fn IF0(
             .instructions
             .push(CompilableInstruction::Label(count.into()));
         let b = execute_code_block(
-            &if let Expression::CodeBlock(s, e) = &fc.arguments[1] {
+            &if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
                 e
             } else {
                 return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
@@ -83,7 +83,7 @@ pub fn IF0(
             .instructions
             .push(CompilableInstruction::Label(count.into()));
         execute_code_block(
-            &if let Expression::CodeBlock(s, e) = &fc.arguments[1] {
+            &if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
                 e
             } else {
                 return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
