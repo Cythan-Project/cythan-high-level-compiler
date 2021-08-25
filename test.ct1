@@ -8,23 +8,36 @@ fn(print,a,b,{
 
 (( We define ))
 {
-    print(11,5);
+    print(11,5); (( char "[" ))
 
-    a = 9;
-    b = 9;
-    add3(a,b,res1,res2);
-
-    print(res1,3);
-    print(res2,3);
-
-    print(12,2);
-
-    mul(a,b,res1,res2);
-
+    add3(3,0,res2,res1); 
     print(res2,3);
     print(res1,3);
+
+    print(12,2); (( char "," ))
     
-    print(13,5);
+    add3(3,3,! res2,res1); 
+    print(res2,3);
+    print(res1,3);
+
+    print(12,2); (( char "," ))
+    
+    add3(10,15,! res2,res1); 
+    print(res2,3);
+    print(res1,3);
+
+    print(12,2); (( char "," ))
+
+    mul(10, 8, ! res1, ! res2);
+
+    print(res1,3); 
+    print(res2,3);
+
+    print(12,2); (( char "," ))
+    print(4 * 2,3);
+
+    
+    print(13,5); (( char "]" ))
 
 
 };

@@ -15,13 +15,13 @@ fn(sub, a, b, {
     a;
 });
 
-fn(add3, &a, b, &*ret1, &*ret2, {
+fn(add3, &a, b, &*ret2, &*ret1, {
     set(ret1, a)
     loop({
         if0(b, :break());
-        dec(b);
         inc(ret1);
-        if0(a,:inc(ret2));
+        dec(b);
+        if0(ret1,:inc(ret2));
     });
     ret1;
 });
@@ -42,20 +42,33 @@ fn(mul,a,b,&*ret1,&*ret2, {
     ret2; (( La multiplication mod 16 ))
 })
 
-fn(+, a, b, :add(a,b));
 
-fn(++_unique, &a, :inc(a));
-fn(=, &*a,&b, :set(a,b));
 fn(@_unique, &a, {
     get_reg(n,a)
     n
 });
 fn(@>, &a, &b, :set_reg(b,a));
-fn(+=, &a,&b, :a = a + b);
 
+fn(cls,&*a,{set(a,0);a});
 
 fn(print,&a,&b,{
     a @> 1;
     b @> 2;
     1 @> 0;
 });
+
+
+
+
+fn(!_unique,&*a,:cls(a));
+fn(=, &*a,&b, :set(a,b));
+
+fn(+, &a, &b, :add(a,b));
+fn(-, &a, &b, :sub(a,b));
+
+fn(++_unique, &a, :inc(a));
+fn(--_unique, &a, :dec(a));
+
+fn(+=, &*a,&b, :a = a + b);
+fn(-=, &*a,&b, :a = a - b);
+fn(*, &a,&b, :mul(a,b,! _,! _));
