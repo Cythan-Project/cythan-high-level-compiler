@@ -2,7 +2,7 @@ use std::{borrow::Cow, collections::HashSet, fmt::Display};
 
 use either::Either;
 
-use crate::{template::Template, CVariable};
+use crate::template::Template;
 
 #[derive(Default)]
 pub struct Context {

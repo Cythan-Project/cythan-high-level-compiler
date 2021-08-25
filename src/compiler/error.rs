@@ -5,6 +5,8 @@ use pest::{
     Span,
 };
 
+use crate::compiler::parser::Rule;
+
 pub enum CError {
     VariableNotFound(CSpan, String),
     FunctionNotFound(CSpan, String),
@@ -12,7 +14,7 @@ pub enum CError {
     ExpectedLiteral(CSpan),
     ExpectedBlock(CSpan),
     FileNotFound(CSpan, String),
-    ParseFileError(Option<CSpan>, Error<crate::Rule>),
+    ParseFileError(Option<CSpan>, Error<Rule>),
     InvalidNumber(CSpan),
     InvalidBreakOrContinue(CSpan),
     ExpectedNumber(CSpan),
@@ -73,7 +75,7 @@ impl CError {
         }
     }
 
-    pub fn as_pest_error(&self) -> pest::error::Error<crate::Rule> {
+    pub fn as_pest_error(&self) -> pest::error::Error<Rule> {
         match self {
             Self::ParseFileError(x, a) => {
                 let mut k = a.clone();
@@ -102,7 +104,7 @@ impl CSpan {
     }
 }
 
-fn build_error(message: &str, span: &[CSpan]) -> pest::error::Error<crate::Rule> {
+fn build_error(message: &str, span: &[CSpan]) -> pest::error::Error<Rule> {
     pest::error::Error::new(
         ErrorVariant::CustomError {
             message: message.to_owned(),
