@@ -1,5 +1,3 @@
-use std::io::Read;
-
 /// This Cythan implementation is optimized to take advantage of a fixed step of 2 and a base value of 0 to get very good performances!
 /// This implementation is the fastest on small codes but on larger codes the chunked implemenetation is faster
 ///
