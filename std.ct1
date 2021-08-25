@@ -15,12 +15,32 @@ fn(sub, a, b, {
     a;
 });
 
+fn(add3, &a, b, &*ret1, &*ret2, {
+    set(ret1, a)
+    loop({
+        if0(b, :break());
+        dec(b);
+        inc(ret1);
+        if0(a,:inc(ret2));
+    });
+    ret1;
+});
+
 fn(==, a, b, :sub(a,b));
 fn(!=, a, b, {
     a = sub(a,b);
     dec(a);
     a
 });
+
+fn(mul,a,b,&*ret1,&*ret2, {
+    loop({
+        if0(b,:break());
+        dec(b);
+        set(ret2,add3(ret2,a,ret1,_));
+    });
+    ret2; (( La multiplication mod 16 ))
+})
 
 fn(+, a, b, :add(a,b));
 
@@ -32,3 +52,10 @@ fn(@_unique, &a, {
 });
 fn(@>, &a, &b, :set_reg(b,a));
 fn(+=, &a,&b, :a = a + b);
+
+
+fn(print,&a,&b,{
+    a @> 1;
+    b @> 2;
+    1 @> 0;
+});

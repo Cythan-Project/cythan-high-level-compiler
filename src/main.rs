@@ -8,11 +8,16 @@ mod template;
 mod error;
 mod functions;
 
+mod executable;
+
+mod bit_utils;
+
 use asm::{CompilableInstruction, Number, Var};
 
 use cythan::Cythan;
 use either::Either;
 use error::{CError, CSpan};
+use executable::{CythanCode, encode};
 use functions::*;
 use pest::{iterators::Pair, Parser};
 use template::Template;
@@ -282,9 +287,11 @@ pub enum ExportFormat {
     ByteCode,
     CythanV3,
     Cythan,
+    Binary
 }
 
 fn main() {
+
     let format = ExportFormat::Run;
     let out = "out.ct";
 
@@ -359,6 +366,23 @@ fn main() {
                 }
             }
         }
+        ExportFormat::Binary => {
+            match cythan_compiler::compile(&compile(&state.instructions)) {
+                Ok(e) => {
+                    std::fs::write(out,encode(&CythanCode {
+                        code: e,
+                        base: 4,
+                        start_pos: 35,
+                    })).unwrap();
+                }
+                Err(e) => {
+                    println!("This error originated from the CythanV3 compiler and should be reported on https://github.com/Cythan-Project/cythan-high-level-compiler");
+                    println!("You should include your source code and the following error in the report.");
+                    println!("{}", e);
+                    panic!()
+                }
+            };
+        },
     }
 
     // ...

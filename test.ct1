@@ -6,11 +6,25 @@ fn(print,a,b,{
     1 @> 0;
 });
 
-(( We define a ))
+(( We define ))
 {
-    include(print.ct1)
-    
-};
+    print(11,5);
 
-a = 1;
-a @> a;
+    a = 9;
+    b = 9;
+    add3(a,b,res1,res2);
+
+    print(res1,3);
+    print(res2,3);
+
+    print(12,2);
+
+    mul(a,b,res1,res2);
+
+    print(res2,3);
+    print(res1,3);
+    
+    print(13,5);
+
+
+};
