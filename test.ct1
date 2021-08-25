@@ -1,9 +1,16 @@
 include(std.ct1);
 
+fn(print,a,b,{
+    a @> 1;
+    b @> 2;
+    1 @> 0;
+});
+
 (( We define a ))
+{
+    include(print.ct1)
+    
+};
+
 a = 1;
-a += 1;
 a @> a;
-exit(
-    if0(a == 2, :3, :4)
-);

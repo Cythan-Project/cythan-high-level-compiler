@@ -30,9 +30,23 @@ dependencies = [
 name = "cytc1"
 version = "0.1.0"
 dependencies = [
+ "cythan",
+ "cythan-compiler",
  "either",
  "pest",
  "pest_derive",
+]
+
+[[package]]
+name = "cythan"
+version = "0.1.0"
+
+[[package]]
+name = "cythan-compiler"
+version = "0.1.0"
+source = "git+https://github.com/Cythan-Project/cythan-compiler#2cfcbedfa850ddcc7a14460f9f548b9d98a293a7"
+dependencies = [
+ "tokesies",
 ]
 
 [[package]]
@@ -154,6 +168,11 @@ dependencies = [
  "quote",
  "unicode-xid",
 ]
+
+[[package]]
+name = "tokesies"
+version = "0.1.0"
+source = "git+https://github.com/Jeffail/tokesies#db4375b4815ee0137622ff8094e241f97f5daf10"
 
 [[package]]
 name = "typenum"

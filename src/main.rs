@@ -10,6 +10,7 @@ mod functions;
 
 use asm::{CompilableInstruction, Number, Var};
 
+use cythan::Cythan;
 use either::Either;
 use error::{CError, CSpan};
 use functions::*;
@@ -276,7 +277,17 @@ impl ScopedState {
 pub type Handler =
     Box<dyn Fn(&mut State, &mut ScopedState, &FunctionCall) -> Result<Option<CVariable>> + 'static>;
 
+pub enum ExportFormat {
+    Run,
+    ByteCode,
+    CythanV3,
+    Cythan,
+}
+
 fn main() {
+    let format = ExportFormat::Run;
+    let out = "out.ct";
+
     let mut state = State::default();
     let mut scope = ScopedState::new();
 
@@ -285,17 +296,70 @@ fn main() {
         panic!()
     }
 
-    println!(
-        "{}",
-        state
-            .instructions
-            .iter()
-            .map(|x| x.to_string())
-            .collect::<Vec<_>>()
-            .join("\n")
-    );
+    match format {
+        ExportFormat::Run => {
+            match cythan_compiler::compile(&compile(&state.instructions)) {
+                Ok(e) => {
+                    let mut machine = cythan::BasicCythan::new(e);
 
-    std::fs::write("out.ct", compile(&state.instructions)).unwrap();
+                    loop {
+                        for _ in 0..1000 {
+                            machine.next();
+                        }
+
+                        let o = machine.cases.clone();
+
+                        machine.next();
+
+                        if o == machine.cases {
+                            break;
+                        }
+                    }
+                }
+                Err(e) => {
+                    println!("This error originated from the CythanV3 compiler and should be reported on https://github.com/Cythan-Project/cythan-high-level-compiler");
+                    println!("You should include your source code and the following error in the report.");
+                    println!("{}", e);
+                    panic!()
+                }
+            }
+        }
+        ExportFormat::ByteCode => {
+            std::fs::write(
+                out,
+                state
+                    .instructions
+                    .iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
+            )
+            .unwrap();
+        }
+        ExportFormat::CythanV3 => {
+            std::fs::write(out, compile(&state.instructions)).unwrap();
+        }
+        ExportFormat::Cythan => {
+            match cythan_compiler::compile(&compile(&state.instructions)) {
+                Ok(e) => {
+                    std::fs::write(
+                        out,
+                        e.iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<_>>()
+                            .join(" "),
+                    )
+                    .unwrap();
+                }
+                Err(e) => {
+                    println!("This error originated from the CythanV3 compiler and should be reported on https://github.com/Cythan-Project/cythan-high-level-compiler");
+                    println!("You should include your source code and the following error in the report.");
+                    println!("{}", e);
+                    panic!()
+                }
+            }
+        }
+    }
 
     // ...
 }

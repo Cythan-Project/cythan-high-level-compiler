@@ -1,0 +1,26 @@
+[package]
+name = "cythan"
+version = "0.1.0"
+authors = ["Cypooos <cyprien.bourotte@gmail.com>", "Laurent Gaucheron <gaucheron.laurent@gmail.com>"]
+edition = "2018"
+
+repository = "https://github.com/Cypooos/Cythan-v3"
+description = "The Cythan machine implementation in Rust"
+readme = "README.md" 
+license = "Apache-2.0"
+
+keywords = ["cythan","turing","discursif"]
+cathegories =  ["algorithms","emulators","science","simulation"]
+
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "cythan-benchmark"
+harness = false

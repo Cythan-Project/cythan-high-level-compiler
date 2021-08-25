@@ -344,7 +344,7 @@ pub fn INCLUDE(
     if fc.arguments.len() != 1 {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 1));
     }
-    let fname = if let Expression::Literal(s, n) = &fc.arguments[0] {
+    let fname = if let Expression::Literal(_, n) = &fc.arguments[0] {
         n
     } else {
         return Err(CError::ExpectedLiteral(fc.arguments[0].get_span().clone()));
