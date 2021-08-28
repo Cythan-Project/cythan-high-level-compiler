@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::CompilableInstruction,
+    asm::{CompilableInstruction, Label, LabelType},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -22,25 +22,33 @@ pub fn LOOP(
     } else {
         return Err(CError::ExpectedBlock(fc.arguments[0].get_span().clone()));
     };
-    let start = state.count();
-    let end = state.count();
+    let count = state.count();
 
     state
         .instructions
-        .push(CompilableInstruction::Label(start.into()));
+        .push(CompilableInstruction::Label(Label::new(
+            count,
+            LabelType::LoopStart,
+        )));
 
     let mut k = ss.clone();
 
-    k.current_loop = Some((start, end));
+    k.current_loop = Some(count);
 
     execute_code_block(inside, state, k)?;
 
     state
         .instructions
-        .push(CompilableInstruction::Jump(start.into()));
+        .push(CompilableInstruction::Jump(Label::new(
+            count,
+            LabelType::LoopStart,
+        )));
     state
         .instructions
-        .push(CompilableInstruction::Label(end.into()));
+        .push(CompilableInstruction::Label(Label::new(
+            count,
+            LabelType::LoopEnd,
+        )));
 
     Ok(None)
 }

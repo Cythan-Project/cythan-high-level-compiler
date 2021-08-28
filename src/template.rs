@@ -32,43 +32,48 @@ impl<'a> Template<'a> {
             current_code_section: Cow::Borrowed("CODE"),
         };
 
-        let mut to_add = format!(
-            "{}",
-            (0..number_of_eles).fold(String::new(), |b, _| b + "0 ")
-        );
-        // println!("adding:{}", to_add);
-        this.add_section("START", Cow::Owned(to_add));
-
-        to_add = format!(
-            "'#0:{nb_ele}{} '#null:0",
-            (1..number_of_eles).fold(String::new(), |b: String, i| format!("{} '#{}:{}", b, i, i)),
-            nb_ele = number_of_eles
-        );
-        // println!("adding:{}", to_add);
-        this.add_section("START", Cow::Owned(to_add));
-
-        to_add = format!(
-            "{}",
-            (0..number_of_eles)
-                .fold(String::new(), |b, i| format!("{} '#int_{}:0", b, i))
-                .trim_start()
-        );
-        // println!("adding:{}", to_add);
-        this.add_section("INTERRUPTS", Cow::Owned(to_add));
-
-        this.add_section("V3_VAR_DEF", Cow::Owned("no_op = (1 1)".to_string()));
-        this.add_section("V3_VAR_DEF", Cow::Owned("earasable = (999)".to_string()));
-        this.add_section("V3_VAR_DEF", Cow::Owned("stop = (~+2 0 ~-2)".to_string()));
-
-        this.add_section("V3_FCT_DEF", Cow::Owned("jump {~+2 0 self.0}".to_string()));
         this.add_section(
-            "V3_FCT_DEF",
-            Cow::Owned("exit {self.0 '#int_0 stop}".to_string()),
+            "START",
+            Cow::Owned(
+                (0..number_of_eles)
+                    .map(|_| "0")
+                    .collect::<Vec<_>>()
+                    .join(" "),
+            ),
         );
 
-        this.add_section("V3_FCT_DEF", Cow::Owned("inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }".to_string()));
-        this.add_section("V3_FCT_DEF", Cow::Owned("dec { self.0 'test '#15 16 '#14 15 '#13 14 '#12 13 '#11 12 '#10 11 '#9 10 '#8 9 '#7 8 '#6 7 '#5 6 '#4 5 '#3 4 '#2 3 '#1 2 '#0 1 'test:earasable self.0 }".to_string()));
-        this.add_section("V3_FCT_DEF", Cow::Owned("if_0 { self.0 'test 'pt 16 'end 15 'end 14 'end 13 'end 12 'end 11 'end 10 'end 9 'end 8 'end 7 'end 6 'end 5 'end 4 'end 3 'end 2 'end 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }".to_string()));
+        this.add_section(
+            "START",
+            Cow::Owned(format!(
+                "'#0:{nb_ele}{} '#null:0",
+                (1..number_of_eles)
+                    .map(|x| format!("'#{}:{}", x, x))
+                    .collect::<Vec<_>>()
+                    .join(" "),
+                nb_ele = number_of_eles
+            )),
+        );
+
+        this.add_section(
+            "INTERRUPTS",
+            Cow::Owned(
+                (0..number_of_eles)
+                    .map(|x| format!("#int_{}:0", x))
+                    .collect::<Vec<_>>()
+                    .join(" "),
+            ),
+        );
+
+        this.add_section("V3_VAR_DEF", Cow::Borrowed("no_op = (1 1)"));
+        this.add_section("V3_VAR_DEF", Cow::Borrowed("earasable = (999)"));
+        this.add_section("V3_VAR_DEF", Cow::Borrowed("stop = (~+2 0 ~-2)"));
+
+        this.add_section("V3_FCT_DEF", Cow::Borrowed("jump {~+2 0 self.0}"));
+        this.add_section("V3_FCT_DEF", Cow::Borrowed("exit {self.0 '#int_0 stop}"));
+
+        this.add_section("V3_FCT_DEF", Cow::Borrowed("inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }"));
+        this.add_section("V3_FCT_DEF", Cow::Borrowed("dec { self.0 'test '#15 16 '#14 15 '#13 14 '#12 13 '#11 12 '#10 11 '#9 10 '#8 9 '#7 8 '#6 7 '#5 6 '#4 5 '#3 4 '#2 3 '#1 2 '#0 1 'test:earasable self.0 }"));
+        this.add_section("V3_FCT_DEF", Cow::Borrowed("if_0 { self.0 'test 'pt 16 'end 15 'end 14 'end 13 'end 12 'end 11 'end 10 'end 9 'end 8 'end 7 'end 6 'end 5 'end 4 'end 3 'end 2 'end 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }"));
 
         // println!("--- CODE ---\n{}", this.build());
 

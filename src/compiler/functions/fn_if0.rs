@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::CompilableInstruction,
+    asm::{CompilableInstruction, Label, LabelType},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -17,11 +17,11 @@ pub fn IF0(
 ) -> Result<Option<CVariable>> {
     if fc.arguments.len() == 3 {
         let count = state.count();
-        let count1 = state.count();
         let k1 = get_var(&fc.arguments[0], state, ss)?;
-        state
-            .instructions
-            .push(CompilableInstruction::If0(k1, count.into()));
+        state.instructions.push(CompilableInstruction::If0(
+            k1,
+            Label::new(count, LabelType::IfStart),
+        ));
         let a = execute_code_block(
             if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
                 e
@@ -40,10 +40,16 @@ pub fn IF0(
         }
         state
             .instructions
-            .push(CompilableInstruction::Jump(count1.into()));
+            .push(CompilableInstruction::Jump(Label::new(
+                count,
+                LabelType::IfEnd,
+            )));
         state
             .instructions
-            .push(CompilableInstruction::Label(count.into()));
+            .push(CompilableInstruction::Label(Label::new(
+                count,
+                LabelType::IfStart,
+            )));
         let b = execute_code_block(
             if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
                 e
@@ -55,7 +61,10 @@ pub fn IF0(
         )?;
         state
             .instructions
-            .push(CompilableInstruction::Label(count1.into()));
+            .push(CompilableInstruction::Label(Label::new(
+                count,
+                LabelType::IfEnd,
+            )));
         if let Some(a) = b {
             k += 1;
             state
@@ -71,17 +80,23 @@ pub fn IF0(
     } else if fc.arguments.len() == 2 {
         let k1 = get_var(&fc.arguments[0], state, ss)?;
         let count = state.count();
-        let count1 = state.count();
+        state.instructions.push(CompilableInstruction::If0(
+            k1,
+            Label::new(count, LabelType::IfStart),
+        ));
         state
             .instructions
-            .push(CompilableInstruction::If0(k1, count.into()));
-        state
-            .instructions
-            .push(CompilableInstruction::Jump(count1.into()));
+            .push(CompilableInstruction::Jump(Label::new(
+                count,
+                LabelType::IfEnd,
+            )));
 
         state
             .instructions
-            .push(CompilableInstruction::Label(count.into()));
+            .push(CompilableInstruction::Label(Label::new(
+                count,
+                LabelType::IfStart,
+            )));
         execute_code_block(
             if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
                 e
@@ -93,7 +108,10 @@ pub fn IF0(
         )?;
         state
             .instructions
-            .push(CompilableInstruction::Label(count1.into()));
+            .push(CompilableInstruction::Label(Label::new(
+                count,
+                LabelType::IfEnd,
+            )));
         Ok(None)
     } else {
         Err(CError::WrongNumberOfArgument(fc.span.clone(), 2))

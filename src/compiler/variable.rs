@@ -1,7 +1,5 @@
-use either::Either;
-
 use super::{
-    asm::{Number, Var},
+    asm::{AsmValue, Number},
     error::CSpan,
 };
 
@@ -24,10 +22,10 @@ impl CVariable {
             }
         }
     }
-    pub fn to_asm(&self) -> Either<Var, Number> {
+    pub fn to_asm(&self) -> AsmValue {
         match self {
-            CVariable::Value(_, a) => Either::Left((*a).into()),
-            CVariable::Number(_, a) => Either::Right(Number(*a)),
+            CVariable::Value(_, a) => AsmValue::Var((*a).into()),
+            CVariable::Number(_, a) => AsmValue::Number(Number(*a)),
         }
     }
     pub fn get_span(&self) -> &[CSpan] {

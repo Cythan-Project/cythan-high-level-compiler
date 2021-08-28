@@ -17,7 +17,7 @@ use crate::compiler::type_defs::Result;
 
 #[derive(Clone, Default)]
 pub struct ScopedState {
-    pub current_loop: Option<(usize, usize)>, // (start, end)
+    pub current_loop: Option<usize>, // (start, end)
     variables: HashMap<String, CVariable>,
     call_graph: Vec<String>,
     functions: HashMap<String, Rc<Handler>>,

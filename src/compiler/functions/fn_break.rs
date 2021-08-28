@@ -1,6 +1,11 @@
 use crate::compiler::{
-    asm::CompilableInstruction, error::CError, parser::function_call::FunctionCall,
-    scope::ScopedState, state::State, type_defs::Result, variable::CVariable,
+    asm::{CompilableInstruction, Label, LabelType},
+    error::CError,
+    parser::function_call::FunctionCall,
+    scope::ScopedState,
+    state::State,
+    type_defs::Result,
+    variable::CVariable,
 };
 
 pub fn BREAK(
@@ -12,12 +17,13 @@ pub fn BREAK(
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 0));
     }
 
-    state.instructions.push(CompilableInstruction::Jump(
-        ss.current_loop
-            .ok_or_else(|| CError::InvalidBreakOrContinue(fc.span.clone()))?
-            .1
-            .into(),
-    ));
+    state
+        .instructions
+        .push(CompilableInstruction::Jump(Label::new(
+            ss.current_loop
+                .ok_or_else(|| CError::InvalidBreakOrContinue(fc.span.clone()))?,
+            LabelType::LoopEnd,
+        )));
 
     Ok(None)
 }
