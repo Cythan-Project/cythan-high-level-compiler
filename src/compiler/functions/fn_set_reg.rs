@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Number},
+    asm::{Number},
     error::CError,
     parser::function_call::FunctionCall,
     scope::ScopedState,
@@ -19,11 +19,6 @@ pub fn SET_REG(
     }
     let k1: u8 = as_number(&fc.arguments[0], ss)?;
     let k2 = get_value(&fc.arguments[1], state, ss)?;
-    state
-        .instructions
-        .push(CompilableInstruction::WriteRegister(
-            Number(k1),
-            k2.to_asm(),
-        ));
+    state.set_reg(Number(k1), k2.to_asm());
     Ok(None)
 }

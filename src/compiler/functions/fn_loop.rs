@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Label, LabelType},
+    asm::{Label, LabelType},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -23,12 +23,7 @@ pub fn LOOP(
     };
     let count = state.count();
 
-    state
-        .instructions
-        .push(CompilableInstruction::Label(Label::new(
-            count,
-            LabelType::LoopStart,
-        )));
+    state.label(Label::new(count, LabelType::LoopStart));
 
     let mut k = ss.clone();
 
@@ -36,18 +31,8 @@ pub fn LOOP(
 
     inside.execute(state, k)?;
 
-    state
-        .instructions
-        .push(CompilableInstruction::Jump(Label::new(
-            count,
-            LabelType::LoopStart,
-        )));
-    state
-        .instructions
-        .push(CompilableInstruction::Label(Label::new(
-            count,
-            LabelType::LoopEnd,
-        )));
+    state.jump(Label::new(count, LabelType::LoopStart));
+    state.label(Label::new(count, LabelType::LoopEnd));
 
     Ok(None)
 }

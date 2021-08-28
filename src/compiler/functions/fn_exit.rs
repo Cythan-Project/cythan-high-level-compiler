@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Number},
+    asm::{Number},
     error::CError,
     parser::function_call::FunctionCall,
     scope::ScopedState,
@@ -18,9 +18,7 @@ pub fn EXIT(
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 1));
     }
     let k = get_value(&fc.arguments[0], state, ss)?;
-    state
-        .instructions
-        .push(CompilableInstruction::WriteRegister(Number(0), k.to_asm()));
-    state.instructions.push(CompilableInstruction::Stop);
+    state.set_reg(Number(0), k.to_asm());
+    state.stop();
     Ok(None)
 }

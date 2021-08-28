@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Var},
+    asm::{Var},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -25,9 +25,7 @@ pub fn INC(
         return Err(CError::ExpectedVariable(fc.arguments[0].get_span().clone()));
     };
 
-    state
-        .instructions
-        .push(CompilableInstruction::Increment(k1));
+    state.inc(k1);
 
     Ok(None)
 }

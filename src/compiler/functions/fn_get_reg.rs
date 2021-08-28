@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Number, Var},
+    asm::{Number, Var},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -27,8 +27,6 @@ pub fn GET_REG(
         return Err(CError::ExpectedVariable(fc.arguments[0].get_span().clone()));
     };
     let k2 = as_number(&fc.arguments[1], ss)?;
-    state
-        .instructions
-        .push(CompilableInstruction::ReadRegister(k1, Number(k2)));
+    state.get_reg(k1, Number(k2));
     Ok(None)
 }

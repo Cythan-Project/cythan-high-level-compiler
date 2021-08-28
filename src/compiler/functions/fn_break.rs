@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Label, LabelType},
+    asm::{Label, LabelType},
     error::CError,
     parser::function_call::FunctionCall,
     scope::ScopedState,
@@ -17,13 +17,11 @@ pub fn BREAK(
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 0));
     }
 
-    state
-        .instructions
-        .push(CompilableInstruction::Jump(Label::new(
-            ss.current_loop
-                .ok_or_else(|| CError::InvalidBreakOrContinue(fc.span.clone()))?,
-            LabelType::LoopEnd,
-        )));
+    state.jump(Label::new(
+        ss.current_loop
+            .ok_or_else(|| CError::InvalidBreakOrContinue(fc.span.clone()))?,
+        LabelType::LoopEnd,
+    ));
 
     Ok(None)
 }

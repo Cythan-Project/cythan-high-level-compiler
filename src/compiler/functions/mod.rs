@@ -15,7 +15,7 @@ pub mod fn_set;
 pub mod fn_set_reg;
 
 use crate::compiler::{
-    asm::{CompilableInstruction, Var},
+    asm::{Var},
     error::{CError, CSpan},
     parser::expression::Expression,
     scope::ScopedState,
@@ -102,8 +102,6 @@ pub fn set_variable_to_expression(
 ) -> Result<()> {
     let k1: Var = ss.declare_variable(var, span, state).into(); // Changed to replace var
     let k2 = get_value(fc, state, ss1)?;
-    state
-        .instructions
-        .push(CompilableInstruction::Copy(k1, k2.to_asm()));
+    state.copy(k1, k2.to_asm());
     Ok(())
 }

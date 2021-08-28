@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Label, LabelType},
+    asm::{Label, LabelType},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -18,10 +18,7 @@ pub fn IF0(
     if fc.arguments.len() == 3 {
         let count = state.count();
         let k1 = get_var(&fc.arguments[0], state, ss)?;
-        state.instructions.push(CompilableInstruction::If0(
-            k1,
-            Label::new(count, LabelType::IfStart),
-        ));
+        state.if0(k1, Label::new(count, LabelType::IfStart));
         let a = if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
             e.execute(state, ss.clone())?
         } else {
@@ -30,38 +27,19 @@ pub fn IF0(
         let mut k = 0;
         if let Some(a) = a {
             k += 1;
-            state
-                .instructions
-                .push(CompilableInstruction::Copy(count.into(), a.to_asm()));
+            state.copy(count.into(), a.to_asm());
         }
-        state
-            .instructions
-            .push(CompilableInstruction::Jump(Label::new(
-                count,
-                LabelType::IfEnd,
-            )));
-        state
-            .instructions
-            .push(CompilableInstruction::Label(Label::new(
-                count,
-                LabelType::IfStart,
-            )));
+        state.jump(Label::new(count, LabelType::IfEnd));
+        state.label(Label::new(count, LabelType::IfStart));
         let b = if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
             e.execute(state, ss.clone())?
         } else {
             return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
         };
-        state
-            .instructions
-            .push(CompilableInstruction::Label(Label::new(
-                count,
-                LabelType::IfEnd,
-            )));
+        state.label(Label::new(count, LabelType::IfEnd));
         if let Some(a) = b {
             k += 1;
-            state
-                .instructions
-                .push(CompilableInstruction::Copy(count.into(), a.to_asm()));
+            state.copy(count.into(), a.to_asm());
         }
 
         if k == 2 {
@@ -72,34 +50,16 @@ pub fn IF0(
     } else if fc.arguments.len() == 2 {
         let k1 = get_var(&fc.arguments[0], state, ss)?;
         let count = state.count();
-        state.instructions.push(CompilableInstruction::If0(
-            k1,
-            Label::new(count, LabelType::IfStart),
-        ));
-        state
-            .instructions
-            .push(CompilableInstruction::Jump(Label::new(
-                count,
-                LabelType::IfEnd,
-            )));
+        state.if0(k1, Label::new(count, LabelType::IfStart));
+        state.jump(Label::new(count, LabelType::IfEnd));
 
-        state
-            .instructions
-            .push(CompilableInstruction::Label(Label::new(
-                count,
-                LabelType::IfStart,
-            )));
+        state.label(Label::new(count, LabelType::IfStart));
         if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
             e.execute(state, ss.clone())?;
         } else {
             return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
         }
-        state
-            .instructions
-            .push(CompilableInstruction::Label(Label::new(
-                count,
-                LabelType::IfEnd,
-            )));
+        state.label(Label::new(count, LabelType::IfEnd));
         Ok(None)
     } else {
         Err(CError::WrongNumberOfArgument(fc.span.clone(), 2))

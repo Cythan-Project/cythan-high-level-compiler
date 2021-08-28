@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{CompilableInstruction, Var},
+    asm::{Var},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -26,8 +26,6 @@ pub fn SET(
         return Err(CError::ExpectedVariable(fc.arguments[0].get_span().clone()));
     };
     let k2 = get_value(&fc.arguments[1], state, ss)?;
-    state
-        .instructions
-        .push(CompilableInstruction::Copy(k1, k2.to_asm()));
+    state.copy(k1, k2.to_asm());
     Ok(None)
 }
