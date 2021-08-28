@@ -7,7 +7,7 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::{execute_code_block, get_value, get_value_and_initialize, set_variable_to_expression};
+use super::{get_value, get_value_and_initialize, set_variable_to_expression};
 
 pub fn FN(
     _state: &mut State,
@@ -88,7 +88,7 @@ pub fn FN(
                 )?;
             };
         }
-        execute_code_block(&code, a, scos)
+        code.execute(a, scos)
     });
     Ok(None)
 }

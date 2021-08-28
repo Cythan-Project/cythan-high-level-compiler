@@ -13,7 +13,7 @@ use crate::compiler::type_defs::Result;
 use compiler::{
     asm::CompilableInstruction,
     error::{CError, CSpan},
-    parser::{expression::Expression, parse_file},
+    parser::{codeblock::CodeBlock, parse_file},
     scope::ScopedState,
     state::State,
 };
@@ -151,37 +151,20 @@ pub fn execute_file(
     scope: &mut ScopedState,
     span: Option<CSpan>,
 ) -> Result<()> {
-    exe(
-        &parse_file(
-            file_name,
-            match std::fs::read_to_string(file_name) {
-                Ok(a) => a,
-                Err(e) => {
-                    if let Some(span) = span {
-                        return Err(CError::FileNotFound(span, file_name.to_owned()));
-                    } else {
-                        panic!("{}", e);
-                    }
+    CodeBlock(parse_file(
+        file_name,
+        match std::fs::read_to_string(file_name) {
+            Ok(a) => a,
+            Err(e) => {
+                if let Some(span) = span {
+                    return Err(CError::FileNotFound(span, file_name.to_owned()));
+                } else {
+                    panic!("{}", e);
                 }
-            },
-            span,
-        )?,
-        state,
-        scope,
-    )
-}
-
-fn exe(expressions: &[Expression], state: &mut State, scope: &mut ScopedState) -> Result<()> {
-    for e in expressions {
-        match e {
-            Expression::FunctionCall(_s, a) => {
-                scope.execute(a, state)?;
             }
-            Expression::CodeBlock(_s, a) => {
-                exe(a, state, scope)?;
-            }
-            _ => (),
-        }
-    }
-    Ok(())
+        },
+        span,
+    )?)
+    .execute_with_scope(state, scope)
+    .map(|_| ())
 }

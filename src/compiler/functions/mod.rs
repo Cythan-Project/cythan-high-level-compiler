@@ -29,7 +29,8 @@ pub fn get_value(expr: &Expression, state: &mut State, ss: &mut ScopedState) -> 
         Expression::FunctionCall(s, a) => Ok(ss
             .execute(a, state)?
             .ok_or_else(|| CError::FunctionCallDoesntReturnValue(s.clone()))?),
-        Expression::CodeBlock(s, a) => execute_code_block(a, state, ss.clone())?
+        Expression::CodeBlock(s, a) => a
+            .execute(state, ss.clone())?
             .ok_or_else(|| CError::ExpectedVariable(s.clone())),
         Expression::Literal(s, a) => Ok(ss.get_variable(s, a)?.clone()),
         Expression::Number(s, a) => Ok(CVariable::Number(vec![s.clone()], *a)),
@@ -45,7 +46,8 @@ pub fn get_value_and_initialize(
         Expression::FunctionCall(s, a) => Ok(ss
             .execute(a, state)?
             .ok_or_else(|| CError::FunctionCallDoesntReturnValue(s.clone()))?),
-        Expression::CodeBlock(s, a) => execute_code_block(a, state, ss.clone())?
+        Expression::CodeBlock(s, a) => a
+            .execute(state, ss.clone())?
             .ok_or_else(|| CError::ExpectedVariable(s.clone())),
         Expression::Literal(s, a) => Ok(ss.get_or_declare_variable(a, s.clone(), state)),
         Expression::Number(s, a) => Ok(CVariable::Number(vec![s.clone()], *a)),
@@ -60,7 +62,8 @@ pub fn get_var(expr: &Expression, state: &mut State, ss: &mut ScopedState) -> Re
             .get_value()
             .ok_or_else(|| CError::ExpectedVariable(s.clone()))?
             .into()),
-        Expression::CodeBlock(s, a) => execute_code_block(a, state, ss.clone())?
+        Expression::CodeBlock(s, a) => a
+            .execute(state, ss.clone())?
             .map(|x| x.get_value())
             .flatten()
             .map(|x| x.into())
@@ -103,27 +106,4 @@ pub fn set_variable_to_expression(
         .instructions
         .push(CompilableInstruction::Copy(k1, k2.to_asm()));
     Ok(())
-}
-
-pub fn execute_code_block(
-    expr: &[Expression],
-    state: &mut State,
-    mut ss: ScopedState,
-) -> Result<Option<CVariable>> {
-    let return_var = state.count();
-    ss.return_to = return_var;
-    let mut k = None;
-    for m in expr {
-        match m {
-            Expression::FunctionCall(_s, m) => {
-                k = ss.execute(m, state)?;
-            }
-            Expression::CodeBlock(_s, m) => {
-                k = execute_code_block(m, state, ss.clone())?;
-            }
-            Expression::Literal(s, m) => k = Some(ss.get_variable(s, m)?.clone()),
-            Expression::Number(s, a) => k = Some(CVariable::Number(vec![s.clone()], *a)),
-        }
-    }
-    Ok(k)
 }

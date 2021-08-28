@@ -8,7 +8,6 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::execute_code_block;
 pub fn LOOP(
     state: &mut State,
     ss: &mut ScopedState,
@@ -35,7 +34,7 @@ pub fn LOOP(
 
     k.current_loop = Some(count);
 
-    execute_code_block(inside, state, k)?;
+    inside.execute(state, k)?;
 
     state
         .instructions

@@ -1,11 +1,11 @@
 use crate::compiler::error::CSpan;
 
-use super::function_call::FunctionCall;
+use super::{codeblock::CodeBlock, function_call::FunctionCall};
 
 #[derive(Debug, Clone)]
 pub enum Expression {
     FunctionCall(CSpan, FunctionCall),
-    CodeBlock(CSpan, Vec<Expression>),
+    CodeBlock(CSpan, CodeBlock),
     Literal(CSpan, String),
     Number(CSpan, u8),
 }

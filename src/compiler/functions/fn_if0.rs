@@ -8,7 +8,7 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::{execute_code_block, get_var};
+use super::get_var;
 
 pub fn IF0(
     state: &mut State,
@@ -22,15 +22,11 @@ pub fn IF0(
             k1,
             Label::new(count, LabelType::IfStart),
         ));
-        let a = execute_code_block(
-            if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
-                e
-            } else {
-                return Err(CError::ExpectedBlock(fc.arguments[2].get_span().clone()));
-            },
-            state,
-            ss.clone(),
-        )?;
+        let a = if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
+            e.execute(state, ss.clone())?
+        } else {
+            return Err(CError::ExpectedBlock(fc.arguments[2].get_span().clone()));
+        };
         let mut k = 0;
         if let Some(a) = a {
             k += 1;
@@ -50,15 +46,11 @@ pub fn IF0(
                 count,
                 LabelType::IfStart,
             )));
-        let b = execute_code_block(
-            if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
-                e
-            } else {
-                return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
-            },
-            state,
-            ss.clone(),
-        )?;
+        let b = if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
+            e.execute(state, ss.clone())?
+        } else {
+            return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
+        };
         state
             .instructions
             .push(CompilableInstruction::Label(Label::new(
@@ -97,15 +89,11 @@ pub fn IF0(
                 count,
                 LabelType::IfStart,
             )));
-        execute_code_block(
-            if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
-                e
-            } else {
-                return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
-            },
-            state,
-            ss.clone(),
-        )?;
+        if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
+            e.execute(state, ss.clone())?;
+        } else {
+            return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
+        }
         state
             .instructions
             .push(CompilableInstruction::Label(Label::new(

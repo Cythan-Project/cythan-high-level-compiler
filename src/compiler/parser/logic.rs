@@ -3,6 +3,7 @@ use std::rc::Rc;
 use pest::iterators::Pair;
 
 use crate::compiler::error::{CError, CSpan};
+use crate::compiler::parser::codeblock::CodeBlock;
 use crate::compiler::parser::{expression::Expression, Rule};
 
 use crate::compiler::type_defs::Result;
@@ -82,9 +83,11 @@ impl Parse for Expression {
             }
             Rule::code_block => Ok(Self::CodeBlock(
                 CSpan::new(file.clone(), pair.as_span()),
-                pair.into_inner()
-                    .map(|x| Expression::from_pairs(x, file))
-                    .collect::<Result<Vec<_>>>()?,
+                CodeBlock(
+                    pair.into_inner()
+                        .map(|x| Expression::from_pairs(x, file))
+                        .collect::<Result<Vec<_>>>()?,
+                ),
             )),
             e => unreachable!("{:?}", e),
         }

@@ -8,6 +8,7 @@ use self::expression::Expression;
 
 use super::error::CSpan;
 
+pub mod codeblock;
 pub mod expression;
 pub mod function_call;
 pub mod logic;
