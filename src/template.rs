@@ -1,8 +1,7 @@
 use std::borrow::Cow;
 
 pub fn get_int_pos_from_base(base: u8) -> usize {
-    // retourne la position des interupts selon la base de la machine de Cythan
-    return 2 * 2_usize.pow(base as u32) + 2;
+    2 * 2_usize.pow(base as u32) + 2
 }
 
 pub struct Template<'a> {
@@ -45,7 +44,7 @@ impl<'a> Template<'a> {
         this.add_section(
             "START",
             Cow::Owned(format!(
-                "'#0:{nb_ele}{} '#null:0",
+                "'#0:{nb_ele} {} '#null:0",
                 (1..number_of_eles)
                     .map(|x| format!("'#{}:{}", x, x))
                     .collect::<Vec<_>>()
@@ -58,7 +57,7 @@ impl<'a> Template<'a> {
             "INTERRUPTS",
             Cow::Owned(
                 (0..number_of_eles)
-                    .map(|x| format!("#int_{}:0", x))
+                    .map(|x| format!("'#int_{}:0", x))
                     .collect::<Vec<_>>()
                     .join(" "),
             ),

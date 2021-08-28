@@ -25,8 +25,8 @@ pub enum CompilableInstruction {
 impl CompilableInstruction {
     fn check_compile_var(var: &Var, template: &mut Template, ctx: &mut Context) {
         if !ctx.variables.contains(&var.0) {
-            ctx.variables.insert(var.0.to_owned());
-            template.add_section("VAR_DEF", Cow::Owned(format!("'v_{}:0", var.0)));
+            ctx.variables.insert(var.0);
+            template.add_section("VAR_DEF", Cow::Owned(format!("{}:0", var)));
         }
     }
 
