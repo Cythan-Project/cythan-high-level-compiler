@@ -1,5 +1,4 @@
 use crate::compiler::{
-    asm::{Var},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -8,7 +7,8 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::get_value;
+use super::{set_variable};
+
 pub fn LET(
     state: &mut State,
     ss: &mut ScopedState,
@@ -17,12 +17,10 @@ pub fn LET(
     if fc.arguments.len() != 2 {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 2));
     }
-    let k1: Var = if let Expression::Literal(s, var) = &fc.arguments[0] {
-        ss.declare_variable(var, s.clone(), state).into()
+    if let Expression::Literal(s, var) = &fc.arguments[0] {
+        set_variable(state, ss, var, &fc.arguments[1], s.clone(), true)?;
     } else {
         return Err(CError::ExpectedVariable(fc.arguments[0].get_span().clone()));
     };
-    let k2 = get_value(&fc.arguments[1], state, ss)?;
-    state.copy(k1, k2.to_asm());
     Ok(None)
 }

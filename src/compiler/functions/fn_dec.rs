@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{Var},
+    asm::Var,
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -17,7 +17,7 @@ pub fn DEC(
     }
 
     let k1: Var = if let Expression::Literal(s, var) = &fc.arguments[0] {
-        ss.get_or_declare_variable(var, s.clone(), state)
+        ss.get_or_declare_variable(var, s, state)
             .get_value()
             .map(Var::from)
             .ok_or_else(|| CError::ExpectedVariable(s.clone()))?

@@ -72,7 +72,7 @@ impl ScopedState {
     pub fn get_or_declare_variable(
         &mut self,
         name: &str,
-        span: CSpan,
+        span: &CSpan,
         state: &mut State,
     ) -> CVariable {
         if let Some(e) = self.variables.get(name) {
@@ -81,7 +81,7 @@ impl ScopedState {
             let k = state.count();
             self.variables
                 .insert(name.to_owned(), CVariable::Value(vec![span.clone()], k));
-            CVariable::Value(vec![span], k)
+            CVariable::Value(vec![span.clone()], k)
         }
     }
 

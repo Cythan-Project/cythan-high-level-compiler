@@ -7,7 +7,7 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::{get_value, get_value_and_initialize, set_variable_to_expression};
+use super::set_variable_to_expression;
 
 pub fn FN(
     _state: &mut State,
@@ -47,17 +47,13 @@ pub fn FN(
         let mut vargs = c.arguments.iter();
         for (i, cspan) in &args {
             if let Some(i) = i.strip_prefix('&') {
-                match if i.starts_with('*') {
-                    let k = vargs
-                        .next()
-                        .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?;
-                    get_value_and_initialize(k, a, b)?.chain(k.get_span().clone())
-                } else {
-                    let k = vargs
-                        .next()
-                        .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?;
-                    get_value(k, a, b)?.chain(k.get_span().clone())
-                } {
+                let k = vargs
+                    .next()
+                    .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?;
+                match k
+                    .get_value(b, a, i.starts_with('*'))?
+                    .chain(k.get_span().clone())
+                {
                     CVariable::Value(s, a) => scos.link_variable(
                         if let Some(e) = i.strip_prefix('*') {
                             e
@@ -85,6 +81,7 @@ pub fn FN(
                         .next()
                         .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?,
                     cspan.clone(),
+                    false,
                 )?;
             };
         }

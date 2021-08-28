@@ -1,7 +1,9 @@
 use super::{
-    asm::{AsmValue, Number},
-    error::CSpan,
+    asm::{AsmValue, Number, Var},
+    error::{CError, CSpan},
 };
+
+use crate::compiler::type_defs::Result;
 
 #[derive(Clone, Debug)]
 pub enum CVariable {
@@ -28,11 +30,19 @@ impl CVariable {
             CVariable::Number(_, a) => AsmValue::Number(Number(*a)),
         }
     }
+
+    pub fn as_var(&self) -> Result<Var> {
+        self.to_asm()
+            .var()
+            .ok_or_else(|| CError::ExpectedVariable(self.get_span()[0].clone()))
+    }
+
     pub fn get_span(&self) -> &[CSpan] {
         match self {
             Self::Value(a, _) | Self::Number(a, _) => a,
         }
     }
+
     pub fn get_value(&self) -> Option<usize> {
         if let Self::Value(_, a) = self {
             Some(*a)

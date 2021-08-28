@@ -147,14 +147,14 @@ pub enum AsmValue {
 
 #[allow(unused)]
 impl AsmValue {
-    fn number(&self) -> Option<Number> {
+    pub fn number(&self) -> Option<Number> {
         if let Self::Number(a) = self {
             Some(a.clone())
         } else {
             None
         }
     }
-    fn var(&self) -> Option<Var> {
+    pub fn var(&self) -> Option<Var> {
         if let Self::Var(a) = self {
             Some(a.clone())
         } else {

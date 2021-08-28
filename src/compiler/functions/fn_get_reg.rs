@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{Number, Var},
+    asm::{Var},
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
@@ -7,8 +7,6 @@ use crate::compiler::{
     type_defs::Result,
     variable::CVariable,
 };
-
-use super::as_number;
 
 pub fn GET_REG(
     state: &mut State,
@@ -19,14 +17,14 @@ pub fn GET_REG(
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 2));
     }
     let k1: Var = if let Expression::Literal(s, var) = &fc.arguments[0] {
-        ss.get_or_declare_variable(var, s.clone(), state)
+        ss.get_or_declare_variable(var, s, state)
             .get_value()
             .map(Var::from)
             .ok_or_else(|| CError::ExpectedVariable(s.clone()))?
     } else {
         return Err(CError::ExpectedVariable(fc.arguments[0].get_span().clone()));
     };
-    let k2 = as_number(&fc.arguments[1], ss)?;
-    state.get_reg(k1, Number(k2));
+    let k2 = fc.arguments[1].as_number(ss, state, false)?;
+    state.get_reg(k1, k2);
     Ok(None)
 }

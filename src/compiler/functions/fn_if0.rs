@@ -8,8 +8,6 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::get_var;
-
 pub fn IF0(
     state: &mut State,
     ss: &mut ScopedState,
@@ -17,7 +15,7 @@ pub fn IF0(
 ) -> Result<Option<CVariable>> {
     if fc.arguments.len() == 3 {
         let count = state.count();
-        let k1 = get_var(&fc.arguments[0], state, ss)?;
+        let k1 = fc.arguments[0].as_var(ss, state, false)?;
         state.if0(k1, Label::new(count, LabelType::IfStart));
         let a = if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
             e.execute(state, ss.clone())?
@@ -48,7 +46,7 @@ pub fn IF0(
             Ok(None)
         }
     } else if fc.arguments.len() == 2 {
-        let k1 = get_var(&fc.arguments[0], state, ss)?;
+        let k1 = fc.arguments[0].get_var(ss, state, false)?;
         let count = state.count();
         state.if0(k1, Label::new(count, LabelType::IfStart));
         state.jump(Label::new(count, LabelType::IfEnd));
