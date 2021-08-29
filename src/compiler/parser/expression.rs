@@ -40,13 +40,6 @@ impl Expression {
         }
     }
 
-    pub fn get_var(&self, ss: &mut ScopedState, state: &mut State, declare: bool) -> Result<Var> {
-        match self.get_value(ss, state, declare)? {
-            CVariable::Value(_, a) => Ok(Var(a)),
-            CVariable::Number(a, _b) => Err(CError(a, CErrorType::ExpectedVariable)),
-        }
-    }
-
     pub fn as_var(&self, ss: &mut ScopedState, state: &mut State, declare: bool) -> Result<Var> {
         self.get_asm_value(ss, state, declare)?
             .var()

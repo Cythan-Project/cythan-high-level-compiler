@@ -1,6 +1,6 @@
 use crate::compiler::{
     error::{CError, CErrorType},
-    parser::{function_call::FunctionCall},
+    parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -22,6 +22,5 @@ pub fn SET(
     }
     let (s, var) = fc.arguments[0].get_literal()?;
     set_variable(state, ss, var, &fc.arguments[1], s.clone(), false)?;
-
     Ok(None)
 }

@@ -44,7 +44,7 @@ pub fn IF0(
             Ok(None)
         }
     } else if fc.arguments.len() == 2 {
-        let k1 = fc.arguments[0].get_var(ss, state, false)?;
+        let k1 = fc.arguments[0].as_var(ss, state, false)?;
         let count = state.count();
         state.if0(k1, Label::new(count, LabelType::IfStart));
         state.jump(Label::new(count, LabelType::IfEnd));
