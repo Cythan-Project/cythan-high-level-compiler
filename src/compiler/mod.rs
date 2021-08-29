@@ -1,6 +1,7 @@
 pub mod asm;
 pub mod error;
 pub mod functions;
+pub mod mir;
 pub mod parser;
 pub mod scope;
 pub mod state;

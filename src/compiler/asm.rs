@@ -2,7 +2,7 @@ use std::{borrow::Cow, collections::HashSet, fmt::Display};
 
 use crate::template::Template;
 
-use super::state::State;
+use super::mir::MirState;
 
 #[derive(Default)]
 pub struct Context {
@@ -139,7 +139,7 @@ impl Display for LabelType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AsmValue {
     Var(Var),
     Number(Number),
@@ -180,7 +180,7 @@ impl Display for Label {
         write!(f, "'l{}{}", self.1, self.0)
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Var(pub usize);
 
 impl Display for Var {
@@ -189,14 +189,14 @@ impl Display for Var {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Number(pub u8);
 
 impl Label {
     pub fn new(count: usize, t: LabelType) -> Self {
         Self(count, t)
     }
-    pub fn alloc(state: &mut State, t: LabelType) -> Self {
+    pub fn alloc(state: &mut MirState, t: LabelType) -> Self {
         Self(state.count(), t)
     }
     pub fn derive(&self, t: LabelType) -> Self {
