@@ -1,7 +1,7 @@
 use crate::compiler::{
     asm::{Label, LabelType},
-    error::CError,
-    parser::{expression::Expression, function_call::FunctionCall},
+    error::{CError, CErrorType},
+    parser::{function_call::FunctionCall},
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -14,13 +14,12 @@ pub fn LOOP(
     fc: &FunctionCall,
 ) -> Result<Option<CVariable>> {
     if fc.arguments.len() != 1 {
-        return Err(CError::WrongNumberOfArgument(fc.span.clone(), 1));
+        return Err(CError(
+            vec![fc.span.clone()],
+            CErrorType::WrongNumberOfArgument(1),
+        ));
     }
-    let inside = if let Some(Expression::CodeBlock(_s, e)) = fc.arguments.get(0) {
-        e
-    } else {
-        return Err(CError::ExpectedBlock(fc.arguments[0].get_span().clone()));
-    };
+    let inside = fc.arguments[0].get_codeblock()?.1;
     let count = state.count();
 
     state.label(Label::new(count, LabelType::LoopStart));

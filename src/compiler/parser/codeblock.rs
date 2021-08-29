@@ -24,7 +24,7 @@ impl CodeBlock {
                 Expression::CodeBlock(_s, m) => {
                     k = m.execute(state, ss.clone())?;
                 }
-                Expression::Literal(s, m) => k = Some(ss.get_variable(s, m)?.clone()),
+                Expression::Literal(s, m) => k = Some(ss.get_variable(&[s.clone()], m)?.clone()),
                 Expression::Number(s, a) => k = Some(CVariable::Number(vec![s.clone()], *a)),
             }
         }
@@ -42,7 +42,7 @@ impl CodeBlock {
                 Expression::CodeBlock(_s, m) => {
                     k = m.execute(state, ss.clone())?;
                 }
-                Expression::Literal(s, m) => k = Some(ss.get_variable(s, m)?.clone()),
+                Expression::Literal(s, m) => k = Some(ss.get_variable(&[s.clone()], m)?.clone()),
                 Expression::Number(s, a) => k = Some(CVariable::Number(vec![s.clone()], *a)),
             }
         }

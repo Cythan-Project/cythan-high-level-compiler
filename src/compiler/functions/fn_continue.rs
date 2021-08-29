@@ -1,6 +1,6 @@
 use crate::compiler::{
     asm::{Label, LabelType},
-    error::CError,
+    error::{CError, CErrorType},
     parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
@@ -13,12 +13,15 @@ pub fn CONTINUE(
     fc: &FunctionCall,
 ) -> Result<Option<CVariable>> {
     if !fc.arguments.is_empty() {
-        return Err(CError::WrongNumberOfArgument(fc.span.clone(), 0));
+        return Err(CError(
+            vec![fc.span.clone()],
+            CErrorType::WrongNumberOfArgument(0),
+        ));
     }
 
     state.jump(Label::new(
         ss.current_loop
-            .ok_or_else(|| CError::InvalidBreakOrContinue(fc.span.clone()))?,
+            .ok_or_else(|| CError(vec![fc.span.clone()], CErrorType::InvalidBreakOrContinue))?,
         LabelType::LoopStart,
     ));
 

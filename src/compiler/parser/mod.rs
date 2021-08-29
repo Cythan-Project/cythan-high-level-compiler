@@ -2,7 +2,10 @@ use std::rc::Rc;
 
 use pest::{iterators::Pair, Parser};
 
-use crate::compiler::{error::CError, type_defs::Result};
+use crate::compiler::{
+    error::{CError, CErrorType},
+    type_defs::Result,
+};
 
 use self::expression::Expression;
 
@@ -24,18 +27,21 @@ trait Parse: Sized {
 pub fn parse_file(
     file_name: &str,
     file_content: String,
-    span: Option<CSpan>,
+    span: Vec<CSpan>,
 ) -> Result<Vec<Expression>> {
     let unparsed_file = Rc::new(file_content);
 
     let file = match CythanParser::parse(Rule::file, unparsed_file) {
         Ok(e) => e,
         Err(e) => {
-            return Err(CError::ParseFileError(span, {
-                let mut e = e;
-                e.locations[0] = e.locations[0].clone().with_path(file_name);
-                e
-            }))
+            return Err(CError(
+                span,
+                CErrorType::ParseFileError({
+                    let mut e = e;
+                    e.locations[0] = e.locations[0].clone().with_path(file_name);
+                    e
+                }),
+            ))
         }
     } // unwrap the parse result
     .next()
@@ -50,6 +56,6 @@ pub fn parse_file(
         .collect::<Result<Vec<_>>>()
     {
         Ok(e) => Ok(e),
-        Err(e) => Err(CError::ParseFileError(span, e.as_pest_error())),
+        Err(e) => Err(e.chain_errors(&span)),
     }
 }

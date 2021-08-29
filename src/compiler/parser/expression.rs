@@ -1,6 +1,6 @@
 use crate::compiler::{
     asm::{AsmValue, Number, Var},
-    error::{CError, CSpan},
+    error::{CError, CErrorType, CSpan},
     scope::ScopedState,
     state::State,
     variable::CVariable,
@@ -23,21 +23,34 @@ impl Expression {
         if let Self::Literal(a, b) = self {
             Ok((a, b))
         } else {
-            Err(CError::ExpectedLiteral(self.get_span().clone()))
+            Err(CError(
+                vec![self.get_span().clone()],
+                CErrorType::ExpectedLiteral,
+            ))
+        }
+    }
+    pub fn get_codeblock(&self) -> Result<(&CSpan, &CodeBlock)> {
+        if let Self::CodeBlock(a, b) = self {
+            Ok((a, b))
+        } else {
+            Err(CError(
+                vec![self.get_span().clone()],
+                CErrorType::ExpectedBlock,
+            ))
         }
     }
 
     pub fn get_var(&self, ss: &mut ScopedState, state: &mut State, declare: bool) -> Result<Var> {
         match self.get_value(ss, state, declare)? {
             CVariable::Value(_, a) => Ok(Var(a)),
-            CVariable::Number(a, _b) => Err(CError::ExpectedVariable(a[0].clone())),
+            CVariable::Number(a, _b) => Err(CError(a, CErrorType::ExpectedVariable)),
         }
     }
 
     pub fn as_var(&self, ss: &mut ScopedState, state: &mut State, declare: bool) -> Result<Var> {
         self.get_asm_value(ss, state, declare)?
             .var()
-            .ok_or_else(|| CError::ExpectedVariable(self.get_span().clone()))
+            .ok_or_else(|| CError(vec![self.get_span().clone()], CErrorType::ExpectedVariable))
     }
 
     pub fn as_number(
@@ -48,7 +61,7 @@ impl Expression {
     ) -> Result<Number> {
         self.get_asm_value(ss, state, declare)?
             .number()
-            .ok_or_else(|| CError::ExpectedNumber(self.get_span().clone()))
+            .ok_or_else(|| CError(vec![self.get_span().clone()], CErrorType::ExpectedNumber))
     }
 
     pub fn get_asm_value(
@@ -70,17 +83,17 @@ impl Expression {
         declare: bool,
     ) -> Result<CVariable> {
         Ok(match self {
-            Expression::FunctionCall(s, a) => ss
-                .execute(a, state)?
-                .ok_or_else(|| CError::FunctionCallDoesntReturnValue(s.clone()))?,
+            Expression::FunctionCall(s, a) => ss.execute(a, state)?.ok_or_else(|| {
+                CError(vec![s.clone()], CErrorType::FunctionCallDoesntReturnValue)
+            })?,
             Expression::CodeBlock(s, a) => a
                 .execute(state, ss.clone())?
-                .ok_or_else(|| CError::ExpectedVariable(s.clone()))?,
+                .ok_or_else(|| CError(vec![s.clone()], CErrorType::ExpectedVariable))?,
             Expression::Literal(s, a) => {
                 if declare {
                     ss.get_or_declare_variable(a, s, state)
                 } else {
-                    ss.get_variable(s, a)?.clone()
+                    ss.get_variable(&[s.clone()], a)?.clone()
                 }
             }
             Expression::Number(s, a) => CVariable::Number(vec![s.clone()], *a),

@@ -17,7 +17,7 @@ use std::sync::{Arc, Mutex};
 use crate::compiler::type_defs::Result;
 use compiler::{
     asm::CompilableInstruction,
-    error::{CError, CSpan},
+    error::{CError, CErrorType, CSpan},
     parser::{codeblock::CodeBlock, parse_file},
     scope::ScopedState,
     state::State,
@@ -43,15 +43,15 @@ fn main() {
     let mut state = State::default();
     let mut scope = ScopedState::new();
 
-    if let Err(e) = execute_file("examples/test1.ct1", &mut state, &mut scope, None) {
-        println!("{}", e.display());
+    if let Err(e) = execute_file("examples/test1.ct1", &mut state, &mut scope, vec![]) {
+        println!("{}", e);
         panic!()
     }
 
     match format {
         ExportFormat::Run => {
             if let Err(e) = compile_and_run_stdio(&state) {
-                println!("{}", e.display());
+                println!("{}", e);
                 panic!()
             }
         }
@@ -82,7 +82,7 @@ fn main() {
                 .unwrap();
             }
             Err(e) => {
-                println!("{}", e.display());
+                println!("{}", e);
                 panic!()
             }
         },
@@ -92,7 +92,7 @@ fn main() {
                     std::fs::write(out, e).unwrap();
                 }
                 Err(e) => {
-                    println!("{}", e.display());
+                    println!("{}", e);
                     panic!()
                 }
             };
@@ -164,7 +164,7 @@ pub fn compile_binary(state: &State) -> Result<Vec<u8>> {
 pub fn compile(state: &State) -> Result<Vec<usize>> {
     cythan_compiler::compile(&compile_v3(&state.instructions, state.base))
         .map_err(|e| e.to_string())
-        .map_err(CError::InternalCompilerError)
+        .map_err(|e| CError(vec![], CErrorType::InternalCompilerError(e)))
 }
 
 fn compile_v3(instructions: &[CompilableInstruction], base: u8) -> String {
@@ -180,18 +180,14 @@ pub fn execute_file(
     file_name: &str,
     state: &mut State,
     scope: &mut ScopedState,
-    span: Option<CSpan>,
+    span: Vec<CSpan>,
 ) -> Result<()> {
     CodeBlock(parse_file(
         file_name,
         match std::fs::read_to_string(file_name) {
             Ok(a) => a,
-            Err(e) => {
-                if let Some(span) = span {
-                    return Err(CError::FileNotFound(span, file_name.to_owned()));
-                } else {
-                    panic!("{}", e);
-                }
+            Err(_e) => {
+                return Err(CError(span, CErrorType::FileNotFound(file_name.to_owned())));
             }
         },
         span,

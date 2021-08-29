@@ -1,7 +1,7 @@
 use crate::compiler::{
     asm::{Label, LabelType},
-    error::CError,
-    parser::{expression::Expression, function_call::FunctionCall},
+    error::{CError, CErrorType},
+    parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -17,11 +17,10 @@ pub fn IF0(
         let count = state.count();
         let k1 = fc.arguments[0].as_var(ss, state, false)?;
         state.if0(k1, Label::new(count, LabelType::IfStart));
-        let a = if let Expression::CodeBlock(_s, e) = &fc.arguments[2] {
-            e.execute(state, ss.clone())?
-        } else {
-            return Err(CError::ExpectedBlock(fc.arguments[2].get_span().clone()));
-        };
+        let a = fc.arguments[2]
+            .get_codeblock()?
+            .1
+            .execute(state, ss.clone())?;
         let mut k = 0;
         if let Some(a) = a {
             k += 1;
@@ -29,11 +28,10 @@ pub fn IF0(
         }
         state.jump(Label::new(count, LabelType::IfEnd));
         state.label(Label::new(count, LabelType::IfStart));
-        let b = if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
-            e.execute(state, ss.clone())?
-        } else {
-            return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
-        };
+        let b = fc.arguments[1]
+            .get_codeblock()?
+            .1
+            .execute(state, ss.clone())?;
         state.label(Label::new(count, LabelType::IfEnd));
         if let Some(a) = b {
             k += 1;
@@ -52,14 +50,16 @@ pub fn IF0(
         state.jump(Label::new(count, LabelType::IfEnd));
 
         state.label(Label::new(count, LabelType::IfStart));
-        if let Expression::CodeBlock(_s, e) = &fc.arguments[1] {
-            e.execute(state, ss.clone())?;
-        } else {
-            return Err(CError::ExpectedBlock(fc.arguments[1].get_span().clone()));
-        }
+        fc.arguments[1]
+            .get_codeblock()?
+            .1
+            .execute(state, ss.clone())?;
         state.label(Label::new(count, LabelType::IfEnd));
         Ok(None)
     } else {
-        Err(CError::WrongNumberOfArgument(fc.span.clone(), 2))
+        Err(CError(
+            vec![fc.span.clone()],
+            CErrorType::WrongNumberOfArgument(2),
+        ))
     }
 }

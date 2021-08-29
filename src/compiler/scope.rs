@@ -13,7 +13,7 @@ use super::{
     variable::CVariable,
 };
 
-use crate::compiler::type_defs::Result;
+use crate::compiler::{error::CErrorType, type_defs::Result};
 
 #[derive(Clone, Default)]
 pub struct ScopedState {
@@ -57,13 +57,18 @@ impl ScopedState {
         self.call_graph.push(call.name.clone());
         self.functions
             .get(&call.name)
-            .ok_or_else(|| CError::FunctionNotFound(call.span.clone(), call.name.to_string()))?
+            .ok_or_else(|| {
+                CError(
+                    vec![call.span.clone()],
+                    CErrorType::FunctionNotFound(call.name.to_string()),
+                )
+            })?
             .clone()(state, self, call)
     }
-    pub fn get_variable(&self, span: &CSpan, name: &str) -> Result<&CVariable> {
+    pub fn get_variable(&self, span: &[CSpan], name: &str) -> Result<&CVariable> {
         self.variables
             .get(name)
-            .ok_or_else(|| CError::VariableNotFound(span.clone(), name.to_owned()))
+            .ok_or_else(|| CError(span.to_vec(), CErrorType::VariableNotFound(name.to_owned())))
     }
     pub fn link_variable(&mut self, name: &str, pos: CVariable) {
         self.variables.insert(name.to_owned(), pos);

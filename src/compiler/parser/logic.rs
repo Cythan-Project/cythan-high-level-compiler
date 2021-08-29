@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use pest::iterators::Pair;
 
-use crate::compiler::error::{CError, CSpan};
+use crate::compiler::error::{CError, CErrorType, CSpan};
 use crate::compiler::parser::codeblock::CodeBlock;
 use crate::compiler::parser::{expression::Expression, Rule};
 
@@ -71,10 +71,12 @@ impl Parse for Expression {
             )),
             Rule::number => Ok(Self::Number(
                 CSpan::new(file.clone(), pair.as_span()),
-                pair.as_str()
-                    .trim()
-                    .parse()
-                    .map_err(|_| CError::InvalidNumber(CSpan::new(file.clone(), pair.as_span())))?,
+                pair.as_str().trim().parse().map_err(|_| {
+                    CError(
+                        vec![CSpan::new(file.clone(), pair.as_span())],
+                        CErrorType::InvalidNumber,
+                    )
+                })?,
             )),
             Rule::function_call => {
                 let span = pair.as_span();

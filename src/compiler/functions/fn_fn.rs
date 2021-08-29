@@ -1,6 +1,6 @@
 use crate::compiler::{
-    error::{CError, CSpan},
-    parser::{expression::Expression, function_call::FunctionCall},
+    error::{CError, CErrorType, CSpan},
+    parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -16,30 +16,20 @@ pub fn FN(
 ) -> Result<Option<CVariable>> {
     let g = fc.arguments.len();
     if fc.arguments.len() < 2 {
-        return Err(CError::WrongNumberOfArgument(fc.span.clone(), 2));
+        return Err(CError(
+            vec![fc.span.clone()],
+            CErrorType::WrongNumberOfArgument(2),
+        ));
     }
-    let fname = if let Expression::Literal(_s, n) = &fc.arguments[0] {
-        n
-    } else {
-        return Err(CError::ExpectedLiteral(fc.arguments[0].get_span().clone()));
-    };
+    let fname = fc.arguments[0].get_literal()?.1;
     let args: Vec<(String, CSpan)> = fc
         .arguments
         .iter()
         .skip(1)
         .take(g - 2)
-        .map(|x| match x {
-            Expression::Literal(s, a) => Ok((a.to_owned(), s.clone())),
-            a => Err(CError::ExpectedLiteral(a.get_span().clone())),
-        })
+        .map(|x| x.get_literal().map(|(a, b)| (b.clone(), a.clone())))
         .collect::<Result<_>>()?;
-    let code = if let Expression::CodeBlock(_s, n) = &fc.arguments[g - 1] {
-        n.clone()
-    } else {
-        return Err(CError::ExpectedBlock(
-            fc.arguments[g - 1].get_span().clone(),
-        ));
-    };
+    let code = fc.arguments[g - 1].get_codeblock()?.1.clone();
     let scos = ss.clone();
 
     ss.add_function(fname, move |a, b, c| {
@@ -47,9 +37,12 @@ pub fn FN(
         let mut vargs = c.arguments.iter();
         for (i, cspan) in &args {
             if let Some(i) = i.strip_prefix('&') {
-                let k = vargs
-                    .next()
-                    .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?;
+                let k = vargs.next().ok_or_else(|| {
+                    CError(
+                        vec![c.span.clone()],
+                        CErrorType::WrongNumberOfArgument(args.len()),
+                    )
+                })?;
                 match k
                     .get_value(b, a, i.starts_with('*'))?
                     .chain(k.get_span().clone())
@@ -77,9 +70,12 @@ pub fn FN(
                     &mut scos,
                     b,
                     i,
-                    vargs
-                        .next()
-                        .ok_or_else(|| CError::WrongNumberOfArgument(c.span.clone(), args.len()))?,
+                    vargs.next().ok_or_else(|| {
+                        CError(
+                            vec![c.span.clone()],
+                            CErrorType::WrongNumberOfArgument(args.len()),
+                        )
+                    })?,
                     cspan.clone(),
                     false,
                 )?;

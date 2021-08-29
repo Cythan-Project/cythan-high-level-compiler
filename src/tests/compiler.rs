@@ -20,10 +20,10 @@ impl Test {
             &format!("src/tests/cythan_tests/{}.ct1", self.file),
             &mut state,
             &mut scope,
-            None,
+            vec![],
         ) {
             assert_eq!(
-                e.display().replace(" ", "").replace("\n", ""),
+                e.to_string().replace(" ", "").replace("\n", ""),
                 self.error
                     .clone()
                     .unwrap_or_default()
@@ -41,7 +41,7 @@ impl Test {
             }
             Err(e) => {
                 assert_eq!(
-                    e.display().replace(" ", "").replace("\n", ""),
+                    e.to_string().replace(" ", "").replace("\n", ""),
                     self.error
                         .clone()
                         .unwrap_or_default()

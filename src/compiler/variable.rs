@@ -1,6 +1,6 @@
 use super::{
     asm::{AsmValue, Number, Var},
-    error::{CError, CSpan},
+    error::{CError, CErrorType, CSpan},
 };
 
 use crate::compiler::type_defs::Result;
@@ -34,7 +34,7 @@ impl CVariable {
     pub fn as_var(&self) -> Result<Var> {
         self.to_asm()
             .var()
-            .ok_or_else(|| CError::ExpectedVariable(self.get_span()[0].clone()))
+            .ok_or_else(|| CError(self.get_span().to_vec(), CErrorType::ExpectedVariable))
     }
 
     pub fn get_span(&self) -> &[CSpan] {
