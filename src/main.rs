@@ -43,7 +43,7 @@ fn main() {
     let mut state = State::default();
     let mut scope = ScopedState::new();
 
-    if let Err(e) = execute_file("examples/test1.ct1", &mut state, &mut scope, vec![]) {
+    if let Err(e) = execute_file("examples/test2.ct1", &mut state, &mut scope, vec![]) {
         println!("{}", e);
         panic!()
     }

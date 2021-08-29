@@ -57,6 +57,15 @@ impl Expression {
             .ok_or_else(|| CError(vec![self.get_span().clone()], CErrorType::ExpectedNumber))
     }
 
+    pub fn execute(&self, ss: &mut ScopedState, state: &mut State) -> Result<Option<CVariable>> {
+        match self {
+            Expression::FunctionCall(_s, m) => ss.execute(m, state),
+            Expression::CodeBlock(_s, m) => m.execute(state, ss.clone()),
+            Expression::Literal(s, m) => Ok(ss.get_variable(&[s.clone()], m)?.unroll(state)?),
+            Expression::Number(s, a) => Ok(Some(CVariable::Number(vec![s.clone()], *a))),
+        }
+    }
+
     pub fn get_asm_value(
         &self,
         ss: &mut ScopedState,
@@ -66,6 +75,7 @@ impl Expression {
         Ok(match self.get_value(ss, state, declare)? {
             CVariable::Value(_, a) => AsmValue::Var(Var(a)),
             CVariable::Number(_a, b) => AsmValue::Number(Number(b)),
+            CVariable::ExpressionRef(_, a, mut b) => return a.get_asm_value(&mut b, state, false),
         })
     }
 

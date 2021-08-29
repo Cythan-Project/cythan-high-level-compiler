@@ -20,7 +20,8 @@ pub fn EXIT(
         ));
     }
     let k = fc.arguments[0].get_value(ss, state, false)?;
-    state.set_reg(Number(0), k.to_asm());
+    let tmp = k.to_asm(state)?;
+    state.set_reg(Number(0), tmp);
     state.stop();
     Ok(None)
 }

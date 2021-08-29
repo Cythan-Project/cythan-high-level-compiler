@@ -96,4 +96,8 @@ impl ScopedState {
             .insert(name.to_owned(), CVariable::Value(vec![span], k));
         k
     }
+
+    pub fn declare_cvar(&mut self, name: &str, variable: CVariable) {
+        self.variables.insert(name.to_owned(), variable);
+    }
 }

@@ -1,7 +1,6 @@
 include(std.ct1);
 
 fn(input, {
-    2 @> 0;
     1 @> 0;
     1 @> 0;
     1 @> 0;
@@ -11,4 +10,17 @@ fn(input, {
     1 @> 0;
 });
 
-input();
+fn(until0,$a,$b, {
+    loop({
+        if0(a,{break()});
+        b;
+    });
+});
+
+a = 10;
+2 @> 0;
+
+until0(a,{
+    1 @> 0;
+    dec(a);
+});

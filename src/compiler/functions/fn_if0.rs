@@ -24,7 +24,8 @@ pub fn IF0(
         let mut k = 0;
         if let Some(a) = a {
             k += 1;
-            state.copy(count.into(), a.to_asm());
+            let tmp = a.to_asm(state)?;
+            state.copy(count.into(), tmp);
         }
         state.jump(Label::new(count, LabelType::IfEnd));
         state.label(Label::new(count, LabelType::IfStart));
@@ -35,7 +36,8 @@ pub fn IF0(
         state.label(Label::new(count, LabelType::IfEnd));
         if let Some(a) = b {
             k += 1;
-            state.copy(count.into(), a.to_asm());
+            let tmp = a.to_asm(state)?;
+            state.copy(count.into(), tmp);
         }
 
         if k == 2 {

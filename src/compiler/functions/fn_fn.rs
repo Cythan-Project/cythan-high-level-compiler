@@ -7,12 +7,13 @@ use crate::compiler::{
     variable::CVariable,
 };
 
-use super::set_variable_to_expression;
+use super::{set_variable_to_expression, set_variable_to_expression_ref};
 
 enum FnArgument {
     Reference(String, CSpan),
     Copy(String, CSpan),
     DefineReference(String, CSpan),
+    ExpressionRef(String, CSpan),
 }
 
 impl FnArgument {
@@ -23,6 +24,8 @@ impl FnArgument {
             } else {
                 Self::Reference(string.to_owned(), span)
             }
+        } else if let Some(string) = string.strip_prefix('$') {
+            Self::ExpressionRef(string.to_owned(), span)
         } else {
             Self::Copy(string.to_owned(), span)
         }
@@ -44,6 +47,13 @@ impl FnArgument {
                 input,
                 n.clone(),
                 false,
+            )?,
+            Self::ExpressionRef(m, n) => set_variable_to_expression_ref(
+                function_scope,
+                m,
+                input.clone(),
+                caller_scope.clone(),
+                n.clone(),
             )?,
             Self::DefineReference(m, n) | Self::Reference(m, n) => {
                 function_scope.link_variable(
