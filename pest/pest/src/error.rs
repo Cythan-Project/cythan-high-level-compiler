@@ -342,7 +342,7 @@ impl<R: RuleType> Error<R> {
             .iter()
             .map(|x| x.spacing().len())
             .max()
-            .unwrap())
+            .unwrap_or(0))
             .map(|_| ' ')
             .collect();
         let mut s = self

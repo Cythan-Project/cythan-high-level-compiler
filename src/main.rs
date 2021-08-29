@@ -12,7 +12,10 @@ mod executable;
 
 mod bit_utils;
 
-use std::sync::{Arc, Mutex};
+use std::{
+    process::exit,
+    sync::{Arc, Mutex},
+};
 
 use crate::compiler::type_defs::Result;
 use compiler::{
@@ -36,16 +39,58 @@ pub enum ExportFormat {
     Binary,
 }
 
+pub fn show_usage() {
+    println!("Usages:");
+    println!("   cyc run <INPUT FILENAME> [Optional: base, Default: 16]");
+    println!("   cyc build <INPUT FILENAME> <OUTPUT FILENAME> <TYPE> [Optional: base, Default: 4]");
+    println!("    TYPE: V3, Bytecode, Binary, Default");
+}
+
+fn parse() -> Option<(String, String, ExportFormat, u8)> {
+    let mut args = std::env::args();
+    args.next()?;
+
+    match args.next()?.as_str() {
+        "run" => Some((
+            args.next()?,
+            String::new(),
+            ExportFormat::Run,
+            args.next().map(|x| x.parse().unwrap()).unwrap_or(4),
+        )),
+        "build" => Some((
+            args.next()?,
+            args.next()?,
+            match args.next()?.to_lowercase().as_str() {
+                "cythan" | "default" | "cy" => ExportFormat::Cythan,
+                "cythanv3" | "cythan-v3" | "v3" => ExportFormat::CythanV3,
+                "bytecode" | "bc" => ExportFormat::ByteCode,
+                "bin" | "binary" | "exe" | "executable" => ExportFormat::Binary,
+                _ => return None,
+            },
+            args.next().map(|x| x.parse().unwrap()).unwrap_or(4),
+        )),
+        _ => None,
+    }
+}
+
 fn main() {
-    let format = ExportFormat::Run;
-    let out = "out.ct";
+    /* let format = ExportFormat::Run;
+    let out = "out.ct"; */
+
+    let (input, out, format, base) = if let Some(e) = parse() {
+        e
+    } else {
+        show_usage();
+        exit(-2);
+    };
 
     let mut state = State::default();
+    state.base = base;
     let mut scope = ScopedState::new();
 
-    if let Err(e) = execute_file("examples/test2.ct1", &mut state, &mut scope, vec![]) {
+    if let Err(e) = execute_file(&input, &mut state, &mut scope, vec![]) {
         println!("{}", e);
-        panic!()
+        exit(-1);
     }
 
     match format {
@@ -93,7 +138,7 @@ fn main() {
                 }
                 Err(e) => {
                     println!("{}", e);
-                    panic!()
+                    exit(-3);
                 }
             };
         }

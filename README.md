@@ -82,11 +82,12 @@ A variable is a standard literal
 
 #### Arguments
 
-Arguments are variables but if they start with & or &\* they behave diferently:
+Arguments are variables but if they start with &, $ or &\* they behave diferently:
 
 - `&` Instead of copying the input value when calling the function will reference the variable
   and allow modifications to it
 - `&*` Same as before but if the variable doesn't exist it will be created
+- `$` The input expression isn't computed until you use the variable containing it.
 
 #### Files
 
