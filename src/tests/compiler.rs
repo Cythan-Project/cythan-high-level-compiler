@@ -22,12 +22,17 @@ impl Test {
             &mut scope,
             None,
         ) {
-            println!("{}", e.display());
-            panic!()
+            assert_eq!(
+                e.display().replace(" ", "").replace("\n", ""),
+                self.error
+                    .clone()
+                    .unwrap_or_default()
+                    .replace(" ", "")
+                    .replace("\n", "")
+            );
+            return;
         }
         match crate::compile_and_run(
-            &state.instructions,
-            state.base,
             &state,
             self.input.clone().unwrap_or_default().chars().collect(),
         ) {

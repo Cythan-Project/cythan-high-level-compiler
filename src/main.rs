@@ -43,14 +43,14 @@ fn main() {
     let mut state = State::default();
     let mut scope = ScopedState::new();
 
-    if let Err(e) = execute_file("test1.ct1", &mut state, &mut scope, None) {
+    if let Err(e) = execute_file("examples/test1.ct1", &mut state, &mut scope, None) {
         println!("{}", e.display());
         panic!()
     }
 
     match format {
         ExportFormat::Run => {
-            if let Err(e) = compile_and_run_stdio(&state.instructions, state.base, &state) {
+            if let Err(e) = compile_and_run_stdio(&state) {
                 println!("{}", e.display());
                 panic!()
             }
@@ -70,7 +70,7 @@ fn main() {
         ExportFormat::CythanV3 => {
             std::fs::write(out, compile_v3(&state.instructions, state.base)).unwrap();
         }
-        ExportFormat::Cythan => match compile(&state.instructions, state.base, &state) {
+        ExportFormat::Cythan => match compile(&state) {
             Ok(e) => {
                 std::fs::write(
                     out,
@@ -87,7 +87,7 @@ fn main() {
             }
         },
         ExportFormat::Binary => {
-            match compile_binary(&state.instructions, state.base, &state) {
+            match compile_binary(&state) {
                 Ok(e) => {
                     std::fs::write(out, e).unwrap();
                 }
@@ -102,13 +102,9 @@ fn main() {
     // ...
 }
 
-pub fn compile_and_run_stdio(
-    instructions: &[CompilableInstruction],
-    base: u8,
-    state: &State,
-) -> Result<()> {
+pub fn compile_and_run_stdio(state: &State) -> Result<()> {
     let mut machine = cythan::InterruptedCythan::new_stdio(
-        compile(instructions, base, state)?,
+        compile(state)?,
         state.base,
         get_int_pos_from_base(state.base),
     );
@@ -128,17 +124,12 @@ pub fn compile_and_run_stdio(
     }
 }
 
-pub fn compile_and_run(
-    instructions: &[CompilableInstruction],
-    base: u8,
-    state: &State,
-    inputs: Vec<char>,
-) -> Result<String> {
+pub fn compile_and_run(state: &State, inputs: Vec<char>) -> Result<String> {
     let string = Arc::new(Mutex::new(String::new()));
     let string1 = string.clone();
     let k = Arc::new(Mutex::new(inputs.into_iter()));
     let mut machine = cythan::InterruptedCythan::new(
-        compile(instructions, base, state)?,
+        compile(state)?,
         state.base,
         get_int_pos_from_base(state.base),
         move |a| {
@@ -162,23 +153,15 @@ pub fn compile_and_run(
     }
 }
 
-pub fn compile_binary(
-    instructions: &[CompilableInstruction],
-    base: u8,
-    state: &State,
-) -> Result<Vec<u8>> {
+pub fn compile_binary(state: &State) -> Result<Vec<u8>> {
     Ok(encode(&CythanCode {
-        code: compile(instructions, base, state)?,
+        code: compile(state)?,
         base: 4,
         start_pos: 35,
     }))
 }
 
-pub fn compile(
-    instructions: &[CompilableInstruction],
-    base: u8,
-    state: &State,
-) -> Result<Vec<usize>> {
+pub fn compile(state: &State) -> Result<Vec<usize>> {
     cythan_compiler::compile(&compile_v3(&state.instructions, state.base))
         .map_err(|e| e.to_string())
         .map_err(CError::InternalCompilerError)
