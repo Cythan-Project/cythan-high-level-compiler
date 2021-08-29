@@ -9,6 +9,17 @@ Since cythan has no addition, substraction, increment, decrement or even if.
 We need to use trick to simulate them.
 For instance, increments links a value a the next only memory copies are done.
 
+## Compiling yourself
+
+Install cargo: [https://rustup.rs](https://rustup.rs).
+Run the bootstrap:
+
+- `cd pest`
+- `cargo bootstrap`
+  Go back to the repo folder (You can use `cd ..`)
+  Build using `cargo build --release`
+  The executable is in `target/release`
+
 ## CH2L (pronunced as Shell) (Cythan High Level Language)
 
 This repo contains a full CH2L to CythanV3 compiler.
