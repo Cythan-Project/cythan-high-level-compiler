@@ -1,6 +1,6 @@
 use crate::compiler::{
     error::{CError, CErrorType, CSpan},
-    parser::function_call::FunctionCall,
+    parser::{expression::Expression, function_call::FunctionCall},
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -8,6 +8,59 @@ use crate::compiler::{
 };
 
 use super::set_variable_to_expression;
+
+enum FnArgument {
+    Reference(String, CSpan),
+    Copy(String, CSpan),
+    DefineReference(String, CSpan),
+}
+
+impl FnArgument {
+    fn new(string: &str, span: CSpan) -> Self {
+        if let Some(string) = string.strip_prefix('&') {
+            if let Some(string) = string.strip_prefix('*') {
+                Self::DefineReference(string.to_owned(), span)
+            } else {
+                Self::Reference(string.to_owned(), span)
+            }
+        } else {
+            Self::Copy(string.to_owned(), span)
+        }
+    }
+
+    fn execute(
+        &self,
+        input: &Expression,
+        function_scope: &mut ScopedState,
+        caller_scope: &mut ScopedState,
+        state: &mut State,
+    ) -> Result<()> {
+        match self {
+            Self::Copy(m, n) => set_variable_to_expression(
+                state,
+                function_scope,
+                caller_scope,
+                m,
+                input,
+                n.clone(),
+                false,
+            )?,
+            Self::DefineReference(m, n) | Self::Reference(m, n) => {
+                function_scope.link_variable(
+                    m,
+                    input
+                        .get_value(
+                            caller_scope,
+                            state,
+                            matches!(self, FnArgument::DefineReference(..)),
+                        )?
+                        .chain(n.clone()),
+                );
+            }
+        }
+        Ok(())
+    }
+}
 
 pub fn FN(
     _state: &mut State,
@@ -22,12 +75,12 @@ pub fn FN(
         ));
     }
     let fname = fc.arguments[0].get_literal()?.1;
-    let args: Vec<(String, CSpan)> = fc
+    let args: Vec<FnArgument> = fc
         .arguments
         .iter()
         .skip(1)
         .take(g - 2)
-        .map(|x| x.get_literal().map(|(a, b)| (b.clone(), a.clone())))
+        .map(|x| x.get_literal().map(|(a, b)| FnArgument::new(b, a.clone())))
         .collect::<Result<_>>()?;
     let code = fc.arguments[g - 1].get_codeblock()?.1.clone();
     let scos = ss.clone();
@@ -35,51 +88,18 @@ pub fn FN(
     ss.add_function(fname, move |a, b, c| {
         let mut scos = scos.clone();
         let mut vargs = c.arguments.iter();
-        for (i, cspan) in &args {
-            if let Some(i) = i.strip_prefix('&') {
-                let k = vargs.next().ok_or_else(|| {
+        for arg in &args {
+            arg.execute(
+                vargs.next().ok_or_else(|| {
                     CError(
                         vec![c.span.clone()],
                         CErrorType::WrongNumberOfArgument(args.len()),
                     )
-                })?;
-                match k
-                    .get_value(b, a, i.starts_with('*'))?
-                    .chain(k.get_span().clone())
-                {
-                    CVariable::Value(s, a) => scos.link_variable(
-                        if let Some(e) = i.strip_prefix('*') {
-                            e
-                        } else {
-                            i
-                        },
-                        CVariable::Value(s, a).chain(cspan.clone()),
-                    ),
-                    CVariable::Number(s, ad) => scos.link_variable(
-                        if let Some(e) = i.strip_prefix('*') {
-                            e
-                        } else {
-                            i
-                        },
-                        CVariable::Number(s, ad).chain(cspan.clone()),
-                    ),
-                }
-            } else {
-                set_variable_to_expression(
-                    a,
-                    &mut scos,
-                    b,
-                    i,
-                    vargs.next().ok_or_else(|| {
-                        CError(
-                            vec![c.span.clone()],
-                            CErrorType::WrongNumberOfArgument(args.len()),
-                        )
-                    })?,
-                    cspan.clone(),
-                    false,
-                )?;
-            };
+                })?,
+                &mut scos,
+                b,
+                a,
+            )?;
         }
         code.execute(a, scos)
     });
