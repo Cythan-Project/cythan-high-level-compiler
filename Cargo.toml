@@ -11,3 +11,7 @@ pest_derive = { path = "pest/derive" }
 either = "1.6.1"
 cythan-compiler = { git = "https://github.com/Cythan-Project/cythan-compiler" }
 cythan = { path = "Cythan-V2" }
+
+[dev-dependencies]
+serde = { features = ["derive"], version = "1.0.130" }
+serde_json = "1.0.67"

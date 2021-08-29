@@ -1,0 +1,12 @@
+[
+  {
+    "file": "test2",
+    "input": "a",
+    "output": "aaaaaaa"
+  },
+  {
+    "file": "test2",
+    "input": "b",
+    "output": "bbbbbbb"
+  }
+]

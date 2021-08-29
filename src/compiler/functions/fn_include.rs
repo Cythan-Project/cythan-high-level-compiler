@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::compiler::{
     error::CError,
     parser::{expression::Expression, function_call::FunctionCall},
@@ -11,6 +13,7 @@ pub fn INCLUDE(
     ss: &mut ScopedState,
     fc: &FunctionCall,
 ) -> Result<Option<CVariable>> {
+    let k = fc.span.get_filename();
     if fc.arguments.len() != 1 {
         return Err(CError::WrongNumberOfArgument(fc.span.clone(), 1));
     }
@@ -19,6 +22,14 @@ pub fn INCLUDE(
     } else {
         return Err(CError::ExpectedLiteral(fc.arguments[0].get_span().clone()));
     };
-    crate::execute_file(fname, state, ss, Some(fc.arguments[0].get_span().clone()))?;
+    let mut path = Path::new(k).to_path_buf();
+    path.pop();
+    let path = path.join(fname);
+    crate::execute_file(
+        path.to_str().unwrap(),
+        state,
+        ss,
+        Some(fc.arguments[0].get_span().clone()),
+    )?;
     Ok(None)
 }

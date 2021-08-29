@@ -21,6 +21,7 @@ pub enum CError {
     ExpectedNumberReferenceFoundVariable(Vec<CSpan>),
     WrongNumberOfArgument(CSpan, usize),
     FunctionCallDoesntReturnValue(CSpan),
+    InternalCompilerError(String),
 }
 
 impl Display for CError {
@@ -51,6 +52,9 @@ impl Display for CError {
                 b
             ),
             CError::ParseFileError(_, _) => unreachable!(),
+            CError::InternalCompilerError(a) => write!(f,"This error originated from the CythanV3 compiler and should be reported on https://github.com/Cythan-Project/cythan-high-level-compiler\n\
+                    You should include your source code and the following error in the report.\n\
+                    {}",a),
         }
     }
 }
@@ -71,6 +75,14 @@ impl CError {
             | CError::ExpectedNumber(a) => vec![a.clone()],
             CError::ExpectedNumberReferenceFoundVariable(a) => a.clone(),
             CError::ParseFileError(_, _) => unreachable!(),
+            CError::InternalCompilerError(_) => unreachable!(),
+        }
+    }
+
+    pub fn display(&self) -> String {
+        match self {
+            Self::InternalCompilerError(_) => self.to_string(),
+            e => e.as_pest_error().to_string(),
         }
     }
 
@@ -100,6 +112,10 @@ pub struct CSpan {
 impl CSpan {
     pub fn new(filename: Rc<String>, span: Span) -> Self {
         Self { filename, span }
+    }
+
+    pub fn get_filename(&self) -> &str {
+        self.filename.as_str()
     }
 }
 
