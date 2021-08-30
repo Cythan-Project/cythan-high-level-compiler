@@ -17,7 +17,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::compiler::type_defs::Result;
+use crate::compiler::{mir::MirState, type_defs::Result};
 use compiler::{
     asm::CompilableInstruction,
     error::{CError, CErrorType, CSpan},
@@ -101,9 +101,11 @@ fn main() {
             }
         }
         ExportFormat::ByteCode => {
+            let mut mrstate = MirState::default();
+            state.instructions.to_asm(&mut mrstate);
             std::fs::write(
                 out,
-                state
+                mrstate
                     .instructions
                     .iter()
                     .map(|x| x.to_string())
@@ -113,7 +115,9 @@ fn main() {
             .unwrap();
         }
         ExportFormat::CythanV3 => {
-            std::fs::write(out, compile_v3(&state.instructions, state.base)).unwrap();
+            let mut k = MirState::default();
+            state.instructions.to_asm(&mut k);
+            std::fs::write(out, compile_v3(&k.instructions, state.base)).unwrap();
         }
         ExportFormat::Cythan => match compile(&state) {
             Ok(e) => {
@@ -207,7 +211,9 @@ pub fn compile_binary(state: &State) -> Result<Vec<u8>> {
 }
 
 pub fn compile(state: &State) -> Result<Vec<usize>> {
-    cythan_compiler::compile(&compile_v3(&state.instructions, state.base))
+    let mut k = MirState::default();
+    state.instructions.to_asm(&mut k);
+    cythan_compiler::compile(&compile_v3(&k.instructions, state.base))
         .map_err(|e| e.to_string())
         .map_err(|e| CError(vec![], CErrorType::InternalCompilerError(e)))
 }

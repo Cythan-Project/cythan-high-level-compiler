@@ -1,7 +1,8 @@
 use crate::compiler::{
     asm::Var,
     error::{CError, CErrorType},
-    parser::{function_call::FunctionCall},
+    mir::Mir,
+    parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -21,6 +22,6 @@ pub fn GET_REG(
     }
     let k1: Var = fc.arguments[0].as_var(ss, state, true)?;
     let k2 = fc.arguments[1].as_number(ss, state, false)?;
-    state.get_reg(k1, k2);
+    state.instructions.push(Mir::ReadRegister(k1, k2));
     Ok(None)
 }

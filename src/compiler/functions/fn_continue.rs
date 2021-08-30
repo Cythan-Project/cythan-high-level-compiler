@@ -1,6 +1,6 @@
 use crate::compiler::{
-    asm::{Label, LabelType},
     error::{CError, CErrorType},
+    mir::Mir,
     parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
@@ -19,11 +19,10 @@ pub fn CONTINUE(
         ));
     }
 
-    state.jump(Label::new(
-        ss.current_loop
-            .ok_or_else(|| CError(vec![fc.span.clone()], CErrorType::InvalidBreakOrContinue))?,
-        LabelType::LoopStart,
-    ));
+    ss.current_loop
+        .ok_or_else(|| CError(vec![fc.span.clone()], CErrorType::InvalidBreakOrContinue))?;
+
+    state.instructions.push(Mir::Continue);
 
     Ok(None)
 }

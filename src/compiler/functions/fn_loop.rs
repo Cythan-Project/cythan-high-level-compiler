@@ -1,6 +1,6 @@
 use crate::compiler::{
-    asm::{Label, LabelType},
     error::{CError, CErrorType},
+    mir::{Mir, MirCodeBlock},
     parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
@@ -19,18 +19,18 @@ pub fn LOOP(
             CErrorType::WrongNumberOfArgument(1),
         ));
     }
-    let count = state.count();
-
-    state.label(Label::new(count, LabelType::LoopStart));
 
     let mut k = ss.clone();
 
-    k.current_loop = Some(count);
+    let mut tmp_state = state.instructions.clone();
+    state.instructions = MirCodeBlock(vec![]);
+
+    k.current_loop = Some(());
 
     fc.arguments[0].get_codeblock()?.1.execute(state, k)?;
 
-    state.jump(Label::new(count, LabelType::LoopStart));
-    state.label(Label::new(count, LabelType::LoopEnd));
+    tmp_state.push(Mir::Loop(state.instructions.clone()));
+    state.instructions = tmp_state;
 
     Ok(None)
 }

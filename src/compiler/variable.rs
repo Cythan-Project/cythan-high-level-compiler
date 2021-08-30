@@ -12,7 +12,7 @@ use crate::compiler::type_defs::Result;
 pub enum CVariable {
     Value(Vec<CSpan>, usize),
     Number(Vec<CSpan>, u8),
-    ExpressionRef(Vec<CSpan>, Expression, ScopedState),
+    ExpressionRef(Vec<CSpan>, Box<Expression>, ScopedState),
 }
 
 impl CVariable {

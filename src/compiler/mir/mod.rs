@@ -2,7 +2,7 @@ use crate::compiler::asm::LabelType;
 
 use super::asm::{AsmValue, CompilableInstruction, Label, Number, Var};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum Mir {
     Copy(Var, AsmValue),                       // to, from - from isn't mutated
     Increment(Var),                            // in, in is mutated
@@ -16,10 +16,13 @@ pub enum Mir {
     WriteRegister(Number, AsmValue),
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct MirCodeBlock(pub Vec<Mir>);
 
 impl MirCodeBlock {
+    pub fn push(&mut self, mir: Mir) {
+        self.0.push(mir);
+    }
     pub fn to_asm(&self, state: &mut MirState) -> SkipStatus {
         for i in &self.0 {
             match i.to_asm(state) {
@@ -31,9 +34,10 @@ impl MirCodeBlock {
     }
 }
 
+#[derive(Default)]
 pub struct MirState {
     pub count: usize,
-    instructions: Vec<CompilableInstruction>,
+    pub instructions: Vec<CompilableInstruction>,
     loops: Vec<Label>,
 }
 
@@ -117,21 +121,20 @@ impl Mir {
                 }
                 match a {
                     AsmValue::Var(a) => {
+                        let end = Label::alloc(state, crate::compiler::asm::LabelType::IfEnd);
                         if b.0.is_empty() {
-                            let end = Label::alloc(state, crate::compiler::asm::LabelType::IfEnd);
                             state.if0(a.clone(), end.clone());
                             b.to_asm(state);
                             state.label(end);
                         } else {
-                            let end = Label::alloc(state, crate::compiler::asm::LabelType::IfEnd);
                             let start = end.derive(LabelType::IfStart);
                             state.if0(a.clone(), start.clone());
-                            let k = c.to_asm(state);
+                            let if1 = c.to_asm(state);
                             state.jump(end.clone());
                             state.label(start);
-                            let l = b.to_asm(state);
+                            let if2 = b.to_asm(state);
                             state.label(end);
-                            return k.lightest(&l);
+                            return if1.lightest(&if2);
                         }
                     }
                     AsmValue::Number(a) => {
@@ -159,10 +162,9 @@ impl Mir {
                 let k = a.to_asm(state);
                 state.loops.pop();
                 state.jump(loopstart);
-                state.label(loopend.clone());
-                match k {
-                    SkipStatus::Stoped => return SkipStatus::Stoped,
-                    _ => (),
+                state.label(loopend);
+                if matches!(k, SkipStatus::Stoped) {
+                    return SkipStatus::Stoped;
                 }
             }
             Mir::Break => {

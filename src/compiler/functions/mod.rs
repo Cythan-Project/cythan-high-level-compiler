@@ -19,7 +19,7 @@ use crate::compiler::{
     type_defs::Result,
 };
 
-use super::variable::CVariable;
+use super::{mir::Mir, variable::CVariable};
 
 pub fn set_variable_to_expression(
     state: &mut State,
@@ -38,7 +38,7 @@ pub fn set_variable_to_expression(
     }; // Changed to replace var
     let k2 = fc.get_value(ss1, state, false)?;
     let tmp = k2.to_asm(state)?;
-    state.copy(k1, tmp);
+    state.instructions.push(Mir::Copy(k1, tmp));
     Ok(())
 }
 
@@ -49,7 +49,10 @@ pub fn set_variable_to_expression_ref(
     expr_state: ScopedState,
     span: CSpan,
 ) -> Result<()> {
-    ss.declare_cvar(var, CVariable::ExpressionRef(vec![span], fc, expr_state)); // Changed to replace var
+    ss.declare_cvar(
+        var,
+        CVariable::ExpressionRef(vec![span], Box::new(fc), expr_state),
+    ); // Changed to replace var
     Ok(())
 }
 
@@ -69,6 +72,6 @@ pub fn set_variable(
     }; // Changed to replace var
     let k2 = fc.get_value(ss, state, false)?;
     let tmp = k2.to_asm(state)?;
-    state.copy(k1, tmp);
+    state.instructions.push(Mir::Copy(k1, tmp));
     Ok(())
 }

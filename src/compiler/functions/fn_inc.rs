@@ -1,7 +1,8 @@
 use crate::compiler::{
     asm::Var,
     error::{CError, CErrorType},
-    parser::{function_call::FunctionCall},
+    mir::Mir,
+    parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
     type_defs::Result,
@@ -20,8 +21,7 @@ pub fn INC(
     }
 
     let k1: Var = fc.arguments[0].as_var(ss, state, true)?;
-
-    state.inc(k1);
+    state.instructions.push(Mir::Increment(k1));
 
     Ok(None)
 }

@@ -1,6 +1,7 @@
 use crate::compiler::{
     asm::Var,
     error::{CError, CErrorType},
+    mir::Mir,
     parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
@@ -20,8 +21,7 @@ pub fn DEC(
     }
 
     let k1: Var = fc.arguments[0].as_var(ss, state, true)?;
-
-    state.dec(k1);
+    state.instructions.push(Mir::Decrement(k1));
 
     Ok(None)
 }

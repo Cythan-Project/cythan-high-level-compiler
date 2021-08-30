@@ -1,6 +1,7 @@
 use crate::compiler::{
     asm::Number,
     error::{CError, CErrorType},
+    mir::Mir,
     parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
@@ -21,7 +22,7 @@ pub fn EXIT(
     }
     let k = fc.arguments[0].get_value(ss, state, false)?;
     let tmp = k.to_asm(state)?;
-    state.set_reg(Number(0), tmp);
-    state.stop();
+    state.instructions.push(Mir::WriteRegister(Number(0), tmp));
+    state.instructions.push(Mir::Stop);
     Ok(None)
 }

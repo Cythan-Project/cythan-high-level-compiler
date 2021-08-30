@@ -1,6 +1,7 @@
 use crate::compiler::{
     asm::Number,
     error::{CError, CErrorType},
+    mir::Mir,
     parser::function_call::FunctionCall,
     scope::ScopedState,
     state::State,
@@ -22,6 +23,6 @@ pub fn SET_REG(
     let k1: Number = fc.arguments[0].as_number(ss, state, false)?;
     let k2 = fc.arguments[1].get_value(ss, state, false)?;
     let tmp = k2.to_asm(state)?;
-    state.set_reg(k1, tmp);
+    state.instructions.push(Mir::WriteRegister(k1, tmp));
     Ok(None)
 }
