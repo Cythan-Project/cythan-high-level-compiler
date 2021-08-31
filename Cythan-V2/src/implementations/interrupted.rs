@@ -10,7 +10,7 @@ use std::io::Read;
 /// ```
 pub struct InterruptedCythan {
     pub cases: Vec<usize>,
-    pub base_as_pow: usize,
+    pub base: u8,
     pub interrupt_place: usize,
     pub print_provider: Box<dyn Fn(u8)>,
     pub input_provider: Box<dyn Fn() -> u8>,
@@ -33,7 +33,7 @@ impl InterruptedCythan {
     ) -> Self {
         Self {
             cases,
-            base_as_pow: 2_u64.pow(base as u32) as usize,
+            base: base,
             interrupt_place,
             print_provider: Box::new(print_provider),
             input_provider: Box::new(input_provider),
@@ -88,21 +88,35 @@ impl Cythan for InterruptedCythan {
     fn set_value(&mut self, index: usize, value: usize) {
         if index == self.interrupt_place {
             if value == 1 {
-                let a = self.get_value(self.interrupt_place + 1);
-                let b = self.get_value(self.interrupt_place + 2);
-                let char = ((a % self.base_as_pow) * self.base_as_pow) + (b % self.base_as_pow);
-                (self.print_provider)(char as u8);
-                //print!("{}", char as u8 as char);
+                let mut char = 0_u8;
+                for n in 0..(8/self.base) {
+                    char *= 2_u64.pow(self.base as u32) as u8;
+                    char += self.get_value(self.interrupt_place + n as usize +1) as u8 % 2_u64.pow(self.base as u32) as u8;
+                }
+                char *= 2_u64.pow((8 % self.base) as u32) as u8;
+                char += self.get_value(self.interrupt_place + 8_usize/ (self.base as usize) + 2 as usize) as u8 % 2_u64.pow((8 % self.base) as u32) as u8;
+                // let a = self.get_value(self.interrupt_place + 1);
+                // let b = self.get_value(self.interrupt_place + 2);
+                // let char = ((a % self.base) * self.base_as_pow) + (b % self.base_as_pow);
+                // (self.print_provider)(char as u8);
+                (self.print_provider)( char);
             }
             if value == 2 {
                 // println!("INPUT");
                 //let o: u8 = std::io::stdin().bytes().next().unwrap().unwrap();
-                let o: u8 = (self.input_provider)();
-                let a = o % self.base_as_pow as u8;
-                let b = o / self.base_as_pow as u8;
+                let mut o: u8 = (self.input_provider)();
+                // let a = o % 2_u64.pow(self.base as u32) as u8;
+                // let b = o / 2_u64.pow(self.base as u32) as u8;
                 // println!("vals:{} {}",a,b);
-                self.set_value(self.interrupt_place + 1, b as usize);
-                self.set_value(self.interrupt_place + 2, a as usize);
+                
+                for n in (0..(8/self.base)).rev() {
+                    self.set_value(self.interrupt_place + 1 + (n as usize), (o % (2_u64.pow(self.base as u32) as u8)) as usize);
+                    println!("o={}, n={}, set={}",o,n,(o % (2_u64.pow(self.base as u32) as u8)));
+                    o /= 2_u64.pow(self.base as u32) as u8;
+                }
+                println!("o={}",o);
+                // self.set_value(self.interrupt_place + 1, b as usize);
+                // self.set_value(self.interrupt_place + 2, a as usize);
             }
         }
         if self.cases.len() <= index {

@@ -27,7 +27,7 @@ use compiler::{
 };
 use cythan::Cythan;
 use executable::{encode, CythanCode};
-use template::{get_int_pos_from_base, Template};
+use template::{get_interrupt_pos_from_base, Template};
 
 use crate::compiler::asm;
 
@@ -155,7 +155,7 @@ pub fn compile_and_run_stdio(state: &State) -> Result<()> {
     let mut machine = cythan::InterruptedCythan::new_stdio(
         compile(state)?,
         state.base,
-        get_int_pos_from_base(state.base),
+        get_interrupt_pos_from_base(state.base),
     );
 
     loop {
@@ -180,7 +180,7 @@ pub fn compile_and_run(state: &State, inputs: Vec<char>) -> Result<String> {
     let mut machine = cythan::InterruptedCythan::new(
         compile(state)?,
         state.base,
-        get_int_pos_from_base(state.base),
+        get_interrupt_pos_from_base(state.base),
         move |a| {
             string.lock().unwrap().push(a as char);
         },
