@@ -219,7 +219,7 @@ pub fn compile(state: &State) -> Result<Vec<usize>> {
 }
 
 fn compile_v3(instructions: &[CompilableInstruction], base: u8) -> String {
-    let mut template = Template::new(include_str!("../template.ct"), base);
+    let mut template = Template::new(include_str!("template.ct"), base);
     let mut ctx = asm::Context::default();
     instructions
         .iter()

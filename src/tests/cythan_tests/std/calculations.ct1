@@ -1,10 +1,5 @@
-include(std.ct1);
+include(stds/base4.ct1);
 
-fn(print,a,b,{
-    a @> 1;
-    b @> 2;
-    1 @> 0;
-});
 
 (( We define ))
 {
@@ -38,6 +33,5 @@ fn(print,a,b,{
 
     
     print(5,13); (( char "]" ))
-
 
 };

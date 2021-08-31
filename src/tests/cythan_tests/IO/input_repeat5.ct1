@@ -1,4 +1,9 @@
-include(std.ct1);
+fn(@_unique, &a, {
+    get_reg(n,a)
+    n
+});
+
+fn(@>, &a, &b, :set_reg(b,a));
 
 fn(input, {
     2 @> 0;

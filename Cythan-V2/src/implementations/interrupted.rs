@@ -111,10 +111,10 @@ impl Cythan for InterruptedCythan {
                 
                 for n in (0..(8/self.base)).rev() {
                     self.set_value(self.interrupt_place + 1 + (n as usize), (o % (2_u64.pow(self.base as u32) as u8)) as usize);
-                    println!("o={}, n={}, set={}",o,n,(o % (2_u64.pow(self.base as u32) as u8)));
+                    //println!("o={}, n={}, set={}",o,n,(o % (2_u64.pow(self.base as u32) as u8)));
                     o /= 2_u64.pow(self.base as u32) as u8;
                 }
-                println!("o={}",o);
+                // println!("o={}",o);
                 // self.set_value(self.interrupt_place + 1, b as usize);
                 // self.set_value(self.interrupt_place + 2, a as usize);
             }

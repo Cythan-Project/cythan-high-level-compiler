@@ -1,7 +1,9 @@
 [
   {
-    "file": "test1",
+    "file": "std/calculations",
     "input": "",
     "output": "[03,06,19,05,8]"
   }
 ]
+    
+  

@@ -1,4 +1,4 @@
-(( Base: 4 ))
+fn(@>, &a, &b, :set_reg(b,a));
 
 fn(print,&a,&b,{
     a @> 1;
