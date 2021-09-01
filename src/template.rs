@@ -97,6 +97,15 @@ impl<'a> Template<'a> {
                 .collect::<Vec<_>>()
                 .join(" ")
         )));
+        this.add_section("V3_FCT_DEF", 
+        Cow::Owned(format!(
+            "if_not0 {{ self.0 'test 'end {} 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }}",
+            (1..(number_of_eles+1))
+                .rev()
+                .map(|x| format!("{} 'pt", x))
+                .collect::<Vec<_>>()
+                .join(" ")
+        )));
         
         
         // Cow::Borrowed("inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }"));
