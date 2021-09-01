@@ -2,7 +2,7 @@
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 '#0:16 '#1:1 '#2:2 '#3:3 '#4:4 '#5:5 '#6:6 '#7:7 '#8:8 '#9:9 '#10:10 '#11:11 '#12:12 '#13:13 '#14:14 '#15:15 '#null:0
 
-'#int_0:0
+'#int_0:0 '#int_1:0 '#int_2:0
 
 no_op = (1 1)
 earasable = (999)
@@ -12,243 +12,172 @@ jump {~+2 0 self.0}
 exit {self.0 '#int_0 stop}
 inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }
 dec { self.0 'test '#15 16 '#14 15 '#13 14 '#12 13 '#11 12 '#10 11 '#9 10 '#8 9 '#7 8 '#6 7 '#5 6 '#4 5 '#3 4 '#2 3 '#1 2 '#0 1 'test:earasable self.0 }
-if_0 { self.0 'test 'pt 16 'end 15 'end 14 'end 13 'end 12 'end 11 'end 10 'end 9 'end 8 'end 7 'end 6 'end 5 'end 4 'end 3 'end 2 'end 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }
+if_0 { self.0 'test 'pt 16 'end 15 'end 14 'end 13 'end 12 'end 11 'end 10 'end 9 'end 8 'end 7 'end 6 'end 5 'end 4 'end 3 'end 2 'end 1 'end 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }
+if_not0 { self.0 'test 'end 16 'pt 15 'pt 14 'pt 13 'pt 12 'pt 11 'pt 10 'pt 9 'pt 8 'pt 7 'pt 6 'pt 5 'pt 4 'pt 3 'pt 2 'pt 1 'pt 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }
 
-'v4:0
-'v5:0
-'v10:0
-'v12:0
 'v11:0
-'v17:0
-'v18:0
-'v23:0
-'v24:0
-'v29:0
-'v30:0
-'v35:0
-'v42:0
-'v43:0
-'v48:0
-'v49:0
-'v54:0
-'v55:0
-'v60:0
-'v67:0
-'v68:0
-'v73:0
-'v74:0
-'v79:0
-'v80:0
-'v85:0
+'v13:0
+'v12:0
+'v36:0
+'v61:0
 'v86:0
-'v94:0
+'v87:0
 'v95:0
-'v100:0
-'v101:0
-'v106:0
-'v107:0
-'v112:0
-'v113:0
-'v118:0
-'v121:0
+'v96:0
 'v122:0
 'v123:0
-'v131:0
+'v124:0
 'v132:0
-'v119:0
-'v141:0
-'v142:0
+'v133:0
 
 
 'start:no_op
-'#5 'v4
-'#11 'v5
-'v4 '#int_1
-'v5 '#int_2
+'#5 '#int_1
+'#11 '#int_2
 '#1 '#int_0
-'#0 'v10
-'#3 'v12
+'#0 'v11
+'#3 'v13
 'lA1:no_op
-if_0('v10 'lD2)
+if_0('v11 'lB1)
 jump('lF2)
-'lD2:no_op
 jump('lB1)
 'lF2:no_op
-inc('v12)
-dec('v10)
-if_0('v12 'lD3)
-jump('lF3)
+inc('v13)
+dec('v11)
+if_0('v13 'lD3)
+jump('lA1)
 'lD3:no_op
-inc('v11)
-'lF3:no_op
+inc('v12)
 jump('lA1)
 'lB1:no_op
-'#3 'v17
-'v11 'v18
-'v17 '#int_1
-'v18 '#int_2
+'#3 '#int_1
+'v12 '#int_2
 '#1 '#int_0
-'#3 'v23
-'v12 'v24
-'v23 '#int_1
-'v24 '#int_2
+'#3 '#int_1
+'v13 '#int_2
 '#1 '#int_0
-'#2 'v29
-'#12 'v30
-'v29 '#int_1
-'v30 '#int_2
+'#2 '#int_1
+'#12 '#int_2
 '#1 '#int_0
-'#3 'v35
-'#0 'v11
-'#3 'v12
+'#3 'v36
+'#0 'v12
+'#3 'v13
 'lA4:no_op
-if_0('v35 'lD5)
+if_0('v36 'lB4)
 jump('lF5)
-'lD5:no_op
 jump('lB4)
 'lF5:no_op
-inc('v12)
-dec('v35)
-if_0('v12 'lD6)
-jump('lF6)
+inc('v13)
+dec('v36)
+if_0('v13 'lD6)
+jump('lA4)
 'lD6:no_op
-inc('v11)
-'lF6:no_op
+inc('v12)
 jump('lA4)
 'lB4:no_op
-'#3 'v42
-'v11 'v43
-'v42 '#int_1
-'v43 '#int_2
+'#3 '#int_1
+'v12 '#int_2
 '#1 '#int_0
-'#3 'v48
-'v12 'v49
-'v48 '#int_1
-'v49 '#int_2
+'#3 '#int_1
+'v13 '#int_2
 '#1 '#int_0
-'#2 'v54
-'#12 'v55
-'v54 '#int_1
-'v55 '#int_2
+'#2 '#int_1
+'#12 '#int_2
 '#1 '#int_0
-'#15 'v60
-'#0 'v11
-'#10 'v12
+'#15 'v61
+'#0 'v12
+'#10 'v13
 'lA7:no_op
-if_0('v60 'lD8)
+if_0('v61 'lB7)
 jump('lF8)
-'lD8:no_op
 jump('lB7)
 'lF8:no_op
-inc('v12)
-dec('v60)
-if_0('v12 'lD9)
-jump('lF9)
+inc('v13)
+dec('v61)
+if_0('v13 'lD9)
+jump('lA7)
 'lD9:no_op
-inc('v11)
-'lF9:no_op
+inc('v12)
 jump('lA7)
 'lB7:no_op
-'#3 'v67
-'v11 'v68
-'v67 '#int_1
-'v68 '#int_2
+'#3 '#int_1
+'v12 '#int_2
 '#1 '#int_0
-'#3 'v73
-'v12 'v74
-'v73 '#int_1
-'v74 '#int_2
+'#3 '#int_1
+'v13 '#int_2
 '#1 '#int_0
-'#2 'v79
-'#12 'v80
-'v79 '#int_1
-'v80 '#int_2
+'#2 '#int_1
+'#12 '#int_2
 '#1 '#int_0
-'#10 'v85
-'#8 'v86
+'#10 'v86
+'#8 'v87
+'#0 'v13
 '#0 'v12
-'#0 'v11
 'lA10:no_op
-if_0('v86 'lD11)
+if_0('v87 'lB10)
 jump('lF11)
-'lD11:no_op
 jump('lB10)
 'lF11:no_op
-dec('v86)
-'v85 'v94
-'v11 'v95
+dec('v87)
+'v86 'v95
+'v12 'v96
 'lA12:no_op
-if_0('v94 'lD13)
+if_0('v95 'lB12)
 jump('lF13)
-'lD13:no_op
 jump('lB12)
 'lF13:no_op
-inc('v95)
-dec('v94)
-if_0('v95 'lD14)
-jump('lF14)
+inc('v96)
+dec('v95)
+if_0('v96 'lD14)
+jump('lA12)
 'lD14:no_op
-inc('v12)
-'lF14:no_op
+inc('v13)
 jump('lA12)
 'lB12:no_op
-'v95 'v11
+'v96 'v12
 jump('lA10)
 'lB10:no_op
-'#3 'v100
-'v11 'v101
-'v100 '#int_1
-'v101 '#int_2
+'#3 '#int_1
+'v12 '#int_2
 '#1 '#int_0
-'#3 'v106
-'v12 'v107
-'v106 '#int_1
-'v107 '#int_2
+'#3 '#int_1
+'v13 '#int_2
 '#1 '#int_0
-'#2 'v112
-'#12 'v113
-'v112 '#int_1
-'v113 '#int_2
+'#2 '#int_1
+'#12 '#int_2
 '#1 '#int_0
-'#3 'v118
-'#4 'v121
-'#2 'v122
-'#0 'v123
-'#0 'v123
+'#4 'v122
+'#2 'v123
+'#0 'v124
+'#0 'v124
 'lA15:no_op
-if_0('v122 'lD16)
+if_0('v123 'lB15)
 jump('lF16)
-'lD16:no_op
 jump('lB15)
 'lF16:no_op
-dec('v122)
-'v121 'v131
-'v123 'v132
+dec('v123)
+'v122 'v132
+'v124 'v133
 'lA17:no_op
-if_0('v131 'lD18)
+if_0('v132 'lB17)
 jump('lF18)
-'lD18:no_op
 jump('lB17)
 'lF18:no_op
-inc('v132)
-dec('v131)
-if_0('v132 'lD19)
-jump('lF19)
+inc('v133)
+dec('v132)
+if_0('v133 'lD19)
+jump('lA17)
 'lD19:no_op
-inc('v123)
-'lF19:no_op
+inc('v124)
 jump('lA17)
 'lB17:no_op
-'v132 'v123
+'v133 'v124
 jump('lA15)
 'lB15:no_op
-'v123 'v119
-'v118 '#int_1
-'v119 '#int_2
+'#3 '#int_1
+'v124 '#int_2
 '#1 '#int_0
-'#5 'v141
-'#13 'v142
-'v141 '#int_1
-'v142 '#int_2
+'#5 '#int_1
+'#13 '#int_2
 '#1 '#int_0
 exit('#0)
