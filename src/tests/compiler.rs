@@ -9,18 +9,20 @@ struct Test {
     input: Option<String>,
     output: Option<String>,
     error: Option<String>,
+    base: Option<u8>,
 }
 
 impl Test {
     fn run_test(&self) {
         let mut state = State::default();
+        state.base = self.base.unwrap_or(4);
         let mut scope = ScopedState::new();
 
         if let Err(e) = execute_file(
             &format!("src/tests/cythan_tests/{}.ct1", self.file),
             &mut state,
             &mut scope,
-            vec![],
+            vec![]
         ) {
             assert_eq!(
                 e.to_string().replace(" ", "").replace("\n", ""),

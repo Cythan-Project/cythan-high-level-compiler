@@ -1,3 +1,5 @@
+(( Base: 4 ))
+
 fn(add, a, b, {
     loop({
         if0(b, :break());
@@ -68,17 +70,4 @@ fn(print,&a,&b,{
 });
 
 
-
-
-fn(!_unique,&*a,:cls(a));
-fn(=, &*a,&b, :set(a,b));
-
-fn(+, &a, &b, :add(a,b));
-fn(-, &a, &b, :sub(a,b));
-
-fn(++_unique, &a, :inc(a));
-fn(--_unique, &a, :dec(a));
-
-fn(+=, &*a,&b, :a = a + b);
-fn(-=, &*a,&b, :a = a - b);
-fn(*, &a,&b, :mul(a,b,! _,! _));
+include(names.ct1);

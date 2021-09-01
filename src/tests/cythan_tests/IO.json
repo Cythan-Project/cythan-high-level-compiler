@@ -1,0 +1,19 @@
+[
+  {
+    "file": "IO/hello_world",
+    "input": "",
+    "output": "Hello world!"
+  },
+  {
+    "file": "IO/input_repeat5",
+    "input": "a",
+    "output": "aaaaaaa"
+  },
+  {
+    "file": "IO/input_repeat5",
+    "input": "8",
+    "output": "8888888"
+  }
+]
+    
+  

@@ -1,4 +1,6 @@
-include(std.ct1);
+(( Base: 4 ))
+
+include(stds/base4.ct1);
 
 fn(print,a,b,{
     a @> 1;

@@ -1,0 +1,8 @@
+[
+  {
+    "file": "compiler/function_not_found",
+    "input": "",
+    "output": "",
+    "error": " ===> src/tests/cythan_tests/compiler/function_not_found.ct1:5:1  |5 | tast_func(1);  | ^----------^  = Function `tast_func` not found"
+  }
+]
