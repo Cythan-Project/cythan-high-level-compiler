@@ -1,4 +1,8 @@
-use std::{borrow::Cow, collections::HashSet, fmt::Display};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    fmt::Display,
+};
 
 use crate::template::Template;
 
@@ -91,9 +95,9 @@ impl Display for CompilableInstruction {
             ),
             CompilableInstruction::Increment(a) => write!(f, "${}++", a.0,),
             CompilableInstruction::Decrement(a) => write!(f, "${}--", a.0,),
-            CompilableInstruction::Jump(a) => write!(f, "jmp '{}", a.0),
-            CompilableInstruction::Label(a) => write!(f, "'{}", a.0),
-            CompilableInstruction::If0(a, b) => write!(f, "if ${} '{}", a.0, b.0),
+            CompilableInstruction::Jump(a) => write!(f, "jmp {}", a),
+            CompilableInstruction::Label(a) => write!(f, "{}", a),
+            CompilableInstruction::If0(a, b) => write!(f, "if ${} {}", a.0, b),
             CompilableInstruction::Stop => write!(f, "stop"),
             CompilableInstruction::ReadRegister(a, b) => write!(f, "${} = @{}", a.0, b.0),
             CompilableInstruction::WriteRegister(a, b) => write!(
@@ -109,10 +113,10 @@ impl Display for CompilableInstruction {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Label(pub usize, pub LabelType);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum LabelType {
     LoopStart,
     LoopEnd,
@@ -139,7 +143,7 @@ impl Display for LabelType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum AsmValue {
     Var(Var),
     Number(Number),
@@ -180,7 +184,7 @@ impl Display for Label {
         write!(f, "'l{}{}", self.1, self.0)
     }
 }
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Var(pub usize);
 
 impl Display for Var {
@@ -189,7 +193,7 @@ impl Display for Var {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Number(pub u8);
 
 impl Label {
@@ -207,4 +211,80 @@ impl From<usize> for Var {
     fn from(val: usize) -> Self {
         Self(val)
     }
+}
+
+pub fn opt_asm(input: Vec<CompilableInstruction>) -> Vec<CompilableInstruction> {
+    if input.is_empty() {
+        return vec![];
+    }
+    std::fs::write(
+        "target/before_opt.asm",
+        input
+            .iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
+            .join("\n"),
+    )
+    .unwrap();
+    let in_count = input.len();
+    let mut out = Vec::new();
+    let mut label_map: HashMap<Label, Label> = HashMap::new();
+    let mut in_jump = false;
+    for el in input {
+        if let CompilableInstruction::Jump(b) = &el {
+            in_jump = true;
+            loop {
+                match out.pop() {
+                    Some(CompilableInstruction::Label(a)) => {
+                        label_map.insert(a, b.clone());
+                    }
+                    Some(e) => {
+                        out.push(e);
+                        break;
+                    }
+                    _ => break,
+                }
+            }
+            out.push(el);
+            continue;
+        }
+        if in_jump
+            && matches!(
+                &el,
+                CompilableInstruction::Label(_) | &CompilableInstruction::If0(..)
+            )
+        {
+            in_jump = false;
+        }
+        if in_jump {
+            continue;
+        }
+        out.push(el);
+    }
+    remap(&mut out, &label_map);
+    std::fs::write(
+        "target/after_opt.asm",
+        out.iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
+            .join("\n"),
+    )
+    .unwrap();
+    println!(
+        "Optimized from {} ASM instructions to {} ASM instructions",
+        in_count,
+        out.len()
+    );
+    out
+}
+
+fn remap(asm: &mut [CompilableInstruction], amap: &HashMap<Label, Label>) {
+    asm.into_iter().for_each(|i| {
+        if let CompilableInstruction::Jump(a)
+        | CompilableInstruction::Label(a)
+        | CompilableInstruction::If0(.., a) = i
+        {
+            *a = amap.get(a).cloned().unwrap_or_else(|| a.clone());
+        }
+    });
 }

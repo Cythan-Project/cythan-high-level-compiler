@@ -33,6 +33,16 @@ fn(!=, a, b, {
     a
 });
 
+fn(mul,a,b,&*ret2, {
+    loop({
+        if0(b,:break());
+        dec(b);
+        set(ret2,add(ret2,a));
+    });
+    ret2; (( La multiplication mod 16 ))
+})
+
+
 fn(mul,a,b,&*ret1,&*ret2, {
     loop({
         if0(b,:break());

@@ -1,5 +1,5 @@
 use crate::compiler::{
-    asm::{AsmValue, Var},
+    asm::Var,
     error::{CError, CErrorType},
     mir::{Mir, MirCodeBlock},
     parser::function_call::FunctionCall,
@@ -53,7 +53,7 @@ pub fn IF0(
             _ => None,
         };
 
-        tmp_state.push(Mir::If0(AsmValue::Var(k1), if_1, if_2));
+        tmp_state.push(Mir::If0(k1, if_1, if_2));
         state.instructions = tmp_state;
 
         Ok(outvar.map(|x| CVariable::Value(vec![fc.span.clone()], x.0)))
@@ -70,7 +70,7 @@ pub fn IF0(
             e.to_asm(state)?;
         }
         tmp_state.push(Mir::If0(
-            AsmValue::Var(k1),
+            k1,
             state.instructions.clone(),
             MirCodeBlock(vec![]),
         ));

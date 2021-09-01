@@ -1,13 +1,17 @@
+use std::fmt::Display;
+
 use crate::compiler::asm::LabelType;
+
+pub mod optimizer;
 
 use super::asm::{AsmValue, CompilableInstruction, Label, Number, Var};
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Hash)]
 pub enum Mir {
-    Copy(Var, AsmValue),                       // to, from - from isn't mutated
-    Increment(Var),                            // in, in is mutated
-    Decrement(Var),                            // in, in is mutated
-    If0(AsmValue, MirCodeBlock, MirCodeBlock), // Jumps to the label if the thing is equals to 0
+    Copy(Var, AsmValue),                  // to, from - from isn't mutated
+    Increment(Var),                       // in, in is mutated
+    Decrement(Var),                       // in, in is mutated
+    If0(Var, MirCodeBlock, MirCodeBlock), // Jumps to the label if the thing is equals to 0
     Loop(MirCodeBlock),
     Break,
     Continue,
@@ -16,7 +20,62 @@ pub enum Mir {
     WriteRegister(Number, AsmValue),
 }
 
-#[derive(PartialEq, Clone)]
+impl Display for Mir {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Mir::Copy(a, b) => write!(
+                f,
+                "v{} = {}",
+                a.0,
+                match b {
+                    AsmValue::Var(a) => format!("v{}", a.0),
+                    AsmValue::Number(a) => a.0.to_string(),
+                }
+            ),
+            Mir::Increment(a) => write!(f, "v{}++", a.0),
+            Mir::Decrement(a) => write!(f, "v{}--", a.0),
+            Mir::If0(a, b, c) => write!(
+                f,
+                "if v{} {{\n  {}\n}} else {{\n  {}\n}}",
+                a.0,
+                b.0.iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+                    .replace("\n", "\n  "),
+                c.0.iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+                    .replace("\n", "\n  ")
+            ),
+            Mir::Loop(a) => write!(
+                f,
+                "loop {{\n  {}\n}}",
+                a.0.iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+                    .replace("\n", "\n  ")
+            ),
+            Mir::Break => write!(f, "break"),
+            Mir::Continue => write!(f, "continue"),
+            Mir::Stop => write!(f, "stop"),
+            Mir::ReadRegister(a, b) => write!(f, "v{} = @{}", a.0, b.0),
+            Mir::WriteRegister(a, b) => write!(
+                f,
+                "{} <@ {}",
+                a.0,
+                match b {
+                    AsmValue::Var(a) => format!("v{}", a.0),
+                    AsmValue::Number(a) => a.0.to_string(),
+                }
+            ),
+        }
+    }
+}
+
+#[derive(PartialEq, Clone, Hash)]
 pub struct MirCodeBlock(pub Vec<Mir>);
 
 impl MirCodeBlock {
@@ -119,32 +178,20 @@ impl Mir {
                 if b == c {
                     return b.to_asm(state);
                 }
-                match a {
-                    AsmValue::Var(a) => {
-                        let end = Label::alloc(state, crate::compiler::asm::LabelType::IfEnd);
-                        if b.0.is_empty() {
-                            state.if0(a.clone(), end.clone());
-                            b.to_asm(state);
-                            state.label(end);
-                        } else {
-                            let start = end.derive(LabelType::IfStart);
-                            state.if0(a.clone(), start.clone());
-                            let if1 = c.to_asm(state);
-                            state.jump(end.clone());
-                            state.label(start);
-                            let if2 = b.to_asm(state);
-                            state.label(end);
-                            return if1.lightest(&if2);
-                        }
-                    }
-                    AsmValue::Number(a) => {
-                        // This removes unreachable or precomputable code branches from ifs
-                        if a.0 == 0 {
-                            return b.to_asm(state);
-                        } else {
-                            return c.to_asm(state);
-                        }
-                    }
+                let end = Label::alloc(state, crate::compiler::asm::LabelType::IfEnd);
+                if b.0.is_empty() {
+                    state.if0(a.clone(), end.clone());
+                    b.to_asm(state);
+                    state.label(end);
+                } else {
+                    let start = end.derive(LabelType::IfStart);
+                    state.if0(a.clone(), start.clone());
+                    let if1 = c.to_asm(state);
+                    state.jump(end.clone());
+                    state.label(start);
+                    let if2 = b.to_asm(state);
+                    state.label(end);
+                    return if1.lightest(&if2);
                 }
             }
             Mir::Loop(a) => {

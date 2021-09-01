@@ -1,3 +1,5 @@
+#![feature(option_result_unwrap_unchecked)]
+
 extern crate pest;
 #[macro_use]
 extern crate pest_derive;
@@ -17,7 +19,11 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::compiler::{mir::MirState, type_defs::Result};
+use crate::compiler::{
+    asm::opt_asm,
+    mir::{optimizer, MirCodeBlock, MirState},
+    type_defs::Result,
+};
 use compiler::{
     asm::CompilableInstruction,
     error::{CError, CErrorType, CSpan},
@@ -102,7 +108,9 @@ fn main() {
         }
         ExportFormat::ByteCode => {
             let mut mrstate = MirState::default();
-            state.instructions.to_asm(&mut mrstate);
+
+            MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut mrstate);
+
             std::fs::write(
                 out,
                 mrstate
@@ -116,8 +124,8 @@ fn main() {
         }
         ExportFormat::CythanV3 => {
             let mut k = MirState::default();
-            state.instructions.to_asm(&mut k);
-            std::fs::write(out, compile_v3(&k.instructions, state.base)).unwrap();
+            MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut k);
+            std::fs::write(out, compile_v3(opt_asm(k.instructions), state.base)).unwrap();
         }
         ExportFormat::Cythan => match compile(&state) {
             Ok(e) => {
@@ -212,13 +220,13 @@ pub fn compile_binary(state: &State) -> Result<Vec<u8>> {
 
 pub fn compile(state: &State) -> Result<Vec<usize>> {
     let mut k = MirState::default();
-    state.instructions.to_asm(&mut k);
-    cythan_compiler::compile(&compile_v3(&k.instructions, state.base))
+    MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut k);
+    cythan_compiler::compile(&compile_v3(opt_asm(k.instructions), state.base))
         .map_err(|e| e.to_string())
         .map_err(|e| CError(vec![], CErrorType::InternalCompilerError(e)))
 }
 
-fn compile_v3(instructions: &[CompilableInstruction], base: u8) -> String {
+fn compile_v3(instructions: Vec<CompilableInstruction>, base: u8) -> String {
     let mut template = Template::new(include_str!("../template.ct"), base);
     let mut ctx = asm::Context::default();
     instructions
