@@ -1,0 +1,45 @@
+include(stds/base4.ct1);
+
+fn(print_-, {
+    2 @> 1;
+    13 @> 2;
+    1 @> 0;
+});
+
+fn(for, times, $block, {
+    loop({
+        if0(times, :break());
+        dec(times);
+        block;
+    });
+});
+
+fn(while0, $a, $block, {
+    loop({
+        if0(a, :block, :break());
+    })
+});
+
+fn(until0, $a, $block, {
+    loop({
+        if0(a, :break());
+        block;
+    })
+});
+
+a = 5;
+
+until0(a, {
+    print_-();
+    -- a;
+});
+
+
+a = 0;
+b = 3;
+
+while0(a, {
+    print_-();
+    -- b;
+    if0(b, :a = 0);
+});

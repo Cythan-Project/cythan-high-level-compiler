@@ -284,7 +284,14 @@ fn remap(asm: &mut [CompilableInstruction], amap: &HashMap<Label, Label>) {
         | CompilableInstruction::Label(a)
         | CompilableInstruction::If0(.., a) = i
         {
-            *a = amap.get(a).cloned().unwrap_or_else(|| a.clone());
+            *a = update(a, amap);
         }
     });
+}
+
+fn update(a: &Label, amap: &HashMap<Label, Label>) -> Label {
+    match amap.get(a) {
+        Some(a) => update(a, amap),
+        None => a.clone(),
+    }
 }
