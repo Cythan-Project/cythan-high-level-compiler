@@ -5,6 +5,7 @@
 # header V3_FCT_DEF
 # header VAR_DEF
 # header FUNCTION_DEF
+# header GEN_FUN
 'start:no_op
 # header CODE
 exit('#0)

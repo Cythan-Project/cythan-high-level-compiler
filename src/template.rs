@@ -70,21 +70,12 @@ impl<'a> Template<'a> {
         this.add_section("V3_FCT_DEF", Cow::Borrowed("jump {~+2 0 self.0}"));
         this.add_section("V3_FCT_DEF", Cow::Borrowed("exit {self.0 '#int_0 stop}"));
 
-        this.add_section("V3_FCT_DEF", 
+        /*this.add_section("GEN_FUN", 
         Cow::Owned(format!(
             "inc {{ self.0 'test {} 'test:earasable self.0 }}",
             (0..(number_of_eles))
                 .rev()
                 .map(|x| format!("'#{} {}", x,x.checked_sub(2).unwrap_or(x+number_of_eles -2)+1))
-                .collect::<Vec<_>>()
-                .join(" ")
-        )));
-        this.add_section("V3_FCT_DEF", 
-        Cow::Owned(format!(
-            "dec {{ self.0 'test {} 'test:earasable self.0 }}",
-            (0..(number_of_eles))
-                .rev()
-                .map(|x| format!("'#{} {}", x,x+1))
                 .collect::<Vec<_>>()
                 .join(" ")
         )));
@@ -96,19 +87,10 @@ impl<'a> Template<'a> {
                 .map(|x| format!("{} 'end", x))
                 .collect::<Vec<_>>()
                 .join(" ")
-        )));
-        this.add_section("V3_FCT_DEF", 
-        Cow::Owned(format!(
-            "if_not0 {{ self.0 'test 'end {} 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }}",
-            (1..(number_of_eles+1))
-                .rev()
-                .map(|x| format!("{} 'pt", x))
-                .collect::<Vec<_>>()
-                .join(" ")
-        )));
+        )));*/
         
         
-        // Cow::Borrowed("inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }"));
+        //                                Cow::Borrowed("inc { self.0 'test '#15 14 '#14 13 '#13 12 '#12 11 '#11 10 '#10 9 '#9 8 '#8 7 '#7 6 '#6 5 '#5 4 '#4 3 '#3 2 '#2 1 '#1 16 '#0 15 'test:earasable self.0 }"));
         // this.add_section("V3_FCT_DEF", Cow::Borrowed("dec { self.0 'test '#15 16 '#14 15 '#13 14 '#12 13 '#11 12 '#10 11 '#9 10 '#8 9 '#7 8 '#6 7 '#5 6 '#4 5 '#3 4 '#2 3 '#1 2 '#0 1 'test:earasable self.0 }"));
         // this.add_section("V3_FCT_DEF", Cow::Borrowed("if_0 { self.0 'test 'pt 16 'end 15 'end 14 'end 13 'end 12 'end 11 'end 10 'end 9 'end 8 'end 7 'end 6 'end 5 'end 4 'end 3 'end 2 'end 1 'test:earasable 0 jump('end1) 'pt:self.1 'end:~+1 'end1:no_op }"));
 
@@ -170,6 +152,7 @@ impl<'a> Template<'a> {
             }
         }
     }
+
 
     pub fn build(&self) -> String {
         // retourne aussi la case ou ce situe les interrupts

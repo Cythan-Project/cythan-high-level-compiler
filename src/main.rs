@@ -20,8 +20,7 @@ use std::{
 };
 
 use crate::compiler::{
-    asm::opt_asm,
-    mir::{optimizer, MirCodeBlock, MirState},
+    // mir::{optimizer, MirCodeBlock, MirState},
     type_defs::Result,
 };
 use compiler::{
@@ -107,7 +106,7 @@ fn main() {
             }
         }
         ExportFormat::ByteCode => {
-            let mut mrstate = MirState::default();
+            /*let mut mrstate = MirState::default();
 
             MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut mrstate);
 
@@ -120,12 +119,12 @@ fn main() {
                     .collect::<Vec<_>>()
                     .join("\n"),
             )
-            .unwrap();
+            .unwrap();*/
         }
-        ExportFormat::CythanV3 => {
+        ExportFormat::CythanV3 => { /* 
             let mut k = MirState::default();
             MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut k);
-            std::fs::write(out, compile_v3(opt_asm(k.instructions), state.base)).unwrap();
+            std::fs::write(out, compile_v3(opt_asm(k.instructions), state.base)).unwrap(); */
         }
         ExportFormat::Cythan => match compile(&state) {
             Ok(e) => {
@@ -218,12 +217,12 @@ pub fn compile_binary(state: &State) -> Result<Vec<u8>> {
     }))
 }
 
-pub fn compile(state: &State) -> Result<Vec<usize>> {
+pub fn compile(state: &State) -> Result<Vec<usize>> { /*
     let mut k = MirState::default();
-    MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut k);
-    cythan_compiler::compile(&compile_v3(opt_asm(k.instructions), state.base))
+    MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut k); */
+    /* cythan_compiler::compile(&compile_v3(opt_asm(k.instructions), state.base))
         .map_err(|e| e.to_string())
-        .map_err(|e| CError(vec![], CErrorType::InternalCompilerError(e)))
+        .map_err(|e| CError(vec![], CErrorType::InternalCompilerError(e))) */
 }
 
 fn compile_v3(instructions: Vec<CompilableInstruction>, base: u8) -> String {
