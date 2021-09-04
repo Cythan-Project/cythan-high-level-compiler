@@ -153,12 +153,15 @@ impl Display for LabelType {
             f,
             "{}",
             match self {
-                LabelType::LoopStart => 'A',
-                LabelType::LoopEnd => 'B',
-                LabelType::FunctionEnd => 'C',
-                LabelType::IfStart => 'D',
-                LabelType::ElseStart => 'E',
-                LabelType::IfEnd => 'F',
+                LabelType::LoopStart => "A",
+                LabelType::LoopEnd => "B",
+                LabelType::FunctionEnd => "C",
+                LabelType::IfStart => "D",
+                LabelType::ElseStart => "E",
+                LabelType::IfEnd => "F",
+                LabelType::JumpingMapStart => "G",
+                LabelType::JumpingMapElement(a) => &format!("H_{}",a),
+                LabelType::JumpingMapEnd => "I",
             }
         )
     }
