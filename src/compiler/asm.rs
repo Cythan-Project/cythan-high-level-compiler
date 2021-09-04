@@ -133,7 +133,7 @@ impl Label {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq,Eq, Hash)]
 pub enum LabelType {
     LoopStart,
     LoopEnd,
@@ -141,6 +141,9 @@ pub enum LabelType {
     IfStart,
     ElseStart,
     IfEnd,
+    JumpingMapStart,
+    JumpingMapElement(usize),
+    JumpingMapEnd,
 }
 
 
