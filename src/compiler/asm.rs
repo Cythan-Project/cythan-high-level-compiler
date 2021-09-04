@@ -2,6 +2,7 @@ use std::{borrow::Cow, collections::{HashMap, HashSet}, ffi::NulError, fmt::Disp
 
 use crate::template::Template;
 
+use super::mir::MirState;
 
 #[derive(Default)]
 pub struct Context {
@@ -112,7 +113,7 @@ impl Display for CompilableInstruction {
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Label(pub usize);
+pub struct Label(pub usize,pub LabelType);
 
 impl Display for Label {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -121,8 +122,42 @@ impl Display for Label {
 }
 
 impl Label {
-    pub fn new(count: usize) -> Self {
-        Self(count)
+    pub fn new(count: usize, t: LabelType) -> Self {
+        Self(count, t)
+    }
+    pub fn alloc(state: &mut MirState, t: LabelType) -> Self {
+        Self(state.count(), t)
+    }
+    pub fn derive(&self, t: LabelType) -> Self {
+        Self(self.0, t)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub enum LabelType {
+    LoopStart,
+    LoopEnd,
+    FunctionEnd,
+    IfStart,
+    ElseStart,
+    IfEnd,
+}
+
+
+impl Display for LabelType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                LabelType::LoopStart => 'A',
+                LabelType::LoopEnd => 'B',
+                LabelType::FunctionEnd => 'C',
+                LabelType::IfStart => 'D',
+                LabelType::ElseStart => 'E',
+                LabelType::IfEnd => 'F',
+            }
+        )
     }
 }
 

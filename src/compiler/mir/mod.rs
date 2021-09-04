@@ -1,17 +1,15 @@
 use std::fmt::Display;
 
-use crate::compiler::asm::LabelType;
-
 pub mod optimizer;
 
-use super::asm::{AsmValue, CompilableInstruction, Label, Number, Var};
+use super::asm::{AsmValue, CompilableInstruction, Label, Number, Var, Mapper, LabelType};
 
 #[derive(PartialEq, Clone, Hash)]
 pub enum Mir {
     Copy(Var, AsmValue),                  // to, from - from isn't mutated
-    Increment(Var),                       // in, in is mutated
-    Decrement(Var),                       // in, in is mutated
-    If0(Var, MirCodeBlock, MirCodeBlock), // Jumps to the label if the thing is equals to 0
+    JumpingMapper(Var,Vec<usize>,Vec<MirCodeBlock>),                   
+    ChangingMapper(Var,Vec<Number>),
+    // If0(Var, MirCodeBlock, MirCodeBlock), // Jumps to the label if the thing is equals to 0
     Loop(MirCodeBlock),
     Break,
     Continue,
@@ -32,7 +30,41 @@ impl Display for Mir {
                     AsmValue::Number(a) => a.0.to_string(),
                 }
             ),
-            Mir::Increment(a) => write!(f, "v{}++", a.0),
+            Mir::JumpingMapper(a,table,codes) => write!(f, 
+                "JumpingMap 'v{}: {}",a,
+                codes
+                    .iter()
+                    .enumerate()
+                    .map(|(i,x)| format!(
+                        "{:?} -> {}", 
+                        table
+                            .iter()
+                            .enumerate()
+                            .filter(|(i_t,x_t)| &&i == x_t)
+                            .map(|(i_t,x_t)| i_t.to_string())
+                            .collect::<Vec<String>>()
+                            .join(","),
+                        format!(" {{\n{} }}",
+                            x.0.iter()
+                                .map(|x| x.to_string())
+                                .collect::<Vec<String>>()
+                                .join("\n")))
+                        .replace("\n", "\n  "))
+                    .collect::<Vec<String>>()
+                    .join("\n")
+                    .replace("\n", "\n  ")
+            ),
+            Mir::ChangingMapper(a,table) => write!(f, 
+                "ChangingMap 'v{}: {}",a,
+                table
+                    .iter()
+                    .enumerate()
+                    .map(|(i,x)| format!("{} -> {}",i,x))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            ),
+            //  write!(f, "map:{}", table.iter().enumerate().map(|(i,x)|format!("{}>{}",i,x)).collect::<Vec<String>>().join(","))
+            /*Mir::Increment(a) => write!(f, "v{}++", a.0),
             Mir::Decrement(a) => write!(f, "v{}--", a.0),
             Mir::If0(a, b, c) => write!(
                 f,
@@ -48,7 +80,7 @@ impl Display for Mir {
                     .collect::<Vec<_>>()
                     .join("\n")
                     .replace("\n", "\n  ")
-            ),
+            ), */
             Mir::Loop(a) => write!(
                 f,
                 "loop {{\n  {}\n}}",
@@ -108,7 +140,10 @@ impl MirState {
     pub fn jump(&mut self, label: Label) {
         self.instructions.push(CompilableInstruction::Jump(label));
     }
-    pub fn dec(&mut self, variable: Var) {
+    pub fn jumping_map(&mut self, label: Label) {
+        self.instructions.push(CompilableInstruction::Jump(label));
+    }
+    /*pub fn dec(&mut self, variable: Var) {
         self.instructions
             .push(CompilableInstruction::Decrement(variable));
     }
@@ -119,6 +154,10 @@ impl MirState {
     pub fn if0(&mut self, variable: Var, label: Label) {
         self.instructions
             .push(CompilableInstruction::If0(variable, label));
+    }*/
+    
+    pub fn mapper(&mut self, variable: Var, map: Mapper) {
+        self.instructions.push(CompilableInstruction::Mapper(variable,map));
     }
     pub fn copy(&mut self, variable: Var, value: AsmValue) {
         self.instructions
@@ -172,7 +211,7 @@ impl Mir {
                 }
                 state.copy(a.clone(), b.clone())
             }
-            Mir::Increment(a) => state.inc(a.clone()),
+            /*Mir::Increment(a) => state.inc(a.clone()),
             Mir::Decrement(a) => state.dec(a.clone()),
             Mir::If0(a, b, c) => {
                 if b == c {
@@ -193,7 +232,7 @@ impl Mir {
                     state.label(end);
                     return if1.lightest(&if2);
                 }
-            }
+            } */
             Mir::Loop(a) => {
                 // If this happens this means the program will do nothing forever.
                 if a.0.is_empty() {
