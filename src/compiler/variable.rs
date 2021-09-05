@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::{
     asm::{AsmValue, Number, Var},
     error::{CError, CErrorType, CSpan},
@@ -12,7 +14,15 @@ use crate::compiler::type_defs::Result;
 pub enum CVariable {
     Value(Vec<CSpan>, usize),
     Number(Vec<CSpan>, u8),
+    Struct(Vec<CSpan>, StructRef),
     ExpressionRef(Vec<CSpan>, Box<Expression>, ScopedState),
+}
+
+#[derive(Clone)]
+pub struct StructRef {
+    pub span: Vec<CSpan>,
+    pub name: String,
+    pub fields: HashMap<String, CVariable>,
 }
 
 impl CVariable {
@@ -35,7 +45,14 @@ impl CVariable {
                 a.insert(0, span);
                 CVariable::Number(a, b)
             }
-            CVariable::ExpressionRef(_, _, _) => todo!(),
+            CVariable::ExpressionRef(mut a, b, c) => {
+                a.insert(0, span);
+                CVariable::ExpressionRef(a, b, c)
+            }
+            CVariable::Struct(mut a, b) => {
+                a.insert(0, span);
+                CVariable::Struct(a, b)
+            }
         }
     }
     pub fn to_asm(&self, state: &mut State) -> Result<AsmValue> {
@@ -43,6 +60,10 @@ impl CVariable {
             CVariable::Value(_, a) => Ok(AsmValue::Var((*a).into())),
             CVariable::Number(_, a) => Ok(AsmValue::Number(Number(*a))),
             CVariable::ExpressionRef(_, a, b) => a.get_asm_value(&mut b.clone(), state, false),
+            CVariable::Struct(a, b) => Err(CError(
+                a.clone(),
+                CErrorType::StructUsedAsVariableInInvalidContext(b.name.to_owned()),
+            )),
         }
     }
 
@@ -54,17 +75,13 @@ impl CVariable {
 
     pub fn get_span(&self) -> &[CSpan] {
         match self {
-            Self::Value(a, _) | Self::Number(a, _) | Self::ExpressionRef(a, ..) => a,
+            Self::Value(a, _)
+            | Self::Number(a, _)
+            | Self::ExpressionRef(a, ..)
+            | Self::Struct(a, ..) => a,
         }
     }
 
-    /* pub fn get_value(&self) -> Option<usize> {
-        if let Self::Value(_, a) = self {
-            Some(*a)
-        } else {
-            None
-        }
-    } */
     pub fn get_number(&self) -> Option<u8> {
         if let Self::Number(_, a) = self {
             Some(*a)

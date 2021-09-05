@@ -10,11 +10,14 @@ use crate::compiler::parser::Rule;
 pub struct CError(pub Vec<CSpan>, pub CErrorType);
 
 pub enum CErrorType {
+    StructUsedAsVariableInInvalidContext(String),
     VariableNotFound(String),
     FunctionNotFound(String),
     ExpectedVariable,
+    ExpectedStruct,
     ExpectedLiteral,
     ExpectedBlock,
+    FieldNotFound(String, String),
     FileNotFound(String),
     ParseFileError(Error<Rule>),
     InvalidNumber,
@@ -33,6 +36,8 @@ impl Display for CErrorType {
             Self::ExpectedVariable => write!(f, "Expected variable"),
             Self::ExpectedNumber => write!(f, "Expected number"),
             Self::InvalidNumber => write!(f, "Invalid number"),
+            Self::ExpectedStruct => write!(f, "Expected struct"),
+            Self::FieldNotFound(a,b) => write!(f, "Field `{}` not found in `{}`",a,b),
             Self::FunctionCallDoesntReturnValue => {
                 write!(f, "This function doesn't return any value")
             }
@@ -53,6 +58,7 @@ impl Display for CErrorType {
             Self::InternalCompilerError(a) => write!(f,"This error originated from the CythanV3 compiler and should be reported on https://github.com/Cythan-Project/cythan-high-level-compiler\n\
                     You should include your source code and the following error in the report.\n\
                     {}",a),
+            CErrorType::StructUsedAsVariableInInvalidContext(a) => write!(f,"Struct `{}` used as a variable in invalid context",a),
         }
     }
 }

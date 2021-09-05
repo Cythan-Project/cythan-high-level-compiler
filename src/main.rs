@@ -109,7 +109,7 @@ fn main() {
         ExportFormat::ByteCode => {
             let mut mrstate = MirState::default();
 
-            MirCodeBlock(optimizer::opt(state.instructions.0.clone())).to_asm(&mut mrstate);
+            MirCodeBlock(optimizer::opt(state.instructions.0)).to_asm(&mut mrstate);
 
             std::fs::write(
                 out,

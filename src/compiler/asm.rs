@@ -279,7 +279,7 @@ pub fn opt_asm(input: Vec<CompilableInstruction>) -> Vec<CompilableInstruction> 
 }
 
 fn remap(asm: &mut [CompilableInstruction], amap: &HashMap<Label, Label>) {
-    asm.into_iter().for_each(|i| {
+    asm.iter_mut().for_each(|i| {
         if let CompilableInstruction::Jump(a)
         | CompilableInstruction::Label(a)
         | CompilableInstruction::If0(.., a) = i

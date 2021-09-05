@@ -76,6 +76,12 @@ impl Expression {
             CVariable::Value(_, a) => AsmValue::Var(Var(a)),
             CVariable::Number(_a, b) => AsmValue::Number(Number(b)),
             CVariable::ExpressionRef(_, a, mut b) => return a.get_asm_value(&mut b, state, false),
+            CVariable::Struct(a, b) => {
+                return Err(CError(
+                    a,
+                    CErrorType::StructUsedAsVariableInInvalidContext(b.name),
+                ))
+            }
         })
     }
 

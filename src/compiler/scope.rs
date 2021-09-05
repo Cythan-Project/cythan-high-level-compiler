@@ -4,8 +4,9 @@ use super::{
     error::{CError, CSpan},
     functions::{
         fn_break::BREAK, fn_continue::CONTINUE, fn_dec::DEC, fn_exit::EXIT, fn_fn::FN,
-        fn_get_reg::GET_REG, fn_if0::IF0, fn_inc::INC, fn_include::INCLUDE, fn_let::LET,
-        fn_loop::LOOP, fn_set::SET, fn_set_reg::SET_REG,
+        fn_get_field::GET_FIELD, fn_get_reg::GET_REG, fn_if0::IF0, fn_inc::INC,
+        fn_include::INCLUDE, fn_let::LET, fn_loop::LOOP, fn_set::SET, fn_set_reg::SET_REG,
+        fn_struct::STRUCT,
     },
     parser::function_call::FunctionCall,
     state::State,
@@ -18,7 +19,7 @@ use crate::compiler::{error::CErrorType, type_defs::Result};
 #[derive(Clone, Default)]
 pub struct ScopedState {
     pub current_loop: Option<()>, // (start, end)
-    variables: HashMap<String, CVariable>,
+    pub variables: HashMap<String, CVariable>,
     call_graph: Vec<String>,
     functions: HashMap<String, Rc<Handler>>,
     pub return_to: usize,
@@ -40,6 +41,8 @@ impl ScopedState {
         k.add_function("inc", INC);
         k.add_function("include", INCLUDE);
         k.add_function("let", LET);
+        k.add_function("struct", STRUCT);
+        k.add_function("get_field", GET_FIELD);
         //k.add_function("if0", IF0);
         k
     }

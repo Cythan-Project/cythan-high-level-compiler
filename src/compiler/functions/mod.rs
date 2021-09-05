@@ -5,6 +5,7 @@ pub mod fn_continue;
 pub mod fn_dec;
 pub mod fn_exit;
 pub mod fn_fn;
+pub mod fn_get_field;
 pub mod fn_get_reg;
 pub mod fn_if0;
 pub mod fn_inc;
@@ -13,9 +14,14 @@ pub mod fn_let;
 pub mod fn_loop;
 pub mod fn_set;
 pub mod fn_set_reg;
+pub mod fn_struct;
 
 use crate::compiler::{
-    asm::Var, error::CSpan, parser::expression::Expression, scope::ScopedState, state::State,
+    asm::Var,
+    error::{CError, CErrorType, CSpan},
+    parser::expression::Expression,
+    scope::ScopedState,
+    state::State,
     type_defs::Result,
 };
 
@@ -64,13 +70,23 @@ pub fn set_variable(
     span: CSpan,
     declare: bool,
 ) -> Result<()> {
+    let k3 = span.clone();
     let k1: Var = if declare {
         ss.declare_variable(var, span, state).into()
     } else {
         ss.get_or_declare_variable(var, &span, state)
             .as_var(state)?
     }; // Changed to replace var
-    let k2 = fc.get_value(ss, state, false)?;
+    let k2 = fc
+        .get_value(ss, state, false)?
+        .unroll(state)?
+        .ok_or_else(|| CError(vec![k3], CErrorType::ExpectedVariable))?;
+    if let CVariable::Struct(a, b) = &k2 {
+        ss.variables
+            .insert(var.to_string(), CVariable::Struct(a.clone(), b.clone()));
+
+        return Ok(());
+    }
     let tmp = k2.to_asm(state)?;
     state.instructions.push(Mir::Copy(k1, tmp));
     Ok(())
